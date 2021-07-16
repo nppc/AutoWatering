@@ -272,7 +272,7 @@ void ssd1306_printTimeH(uint8_t x, uint8_t y, uint8_t num){
     ssd1306_printDigitLine(tmp,a[1]);
     I2C_Write(0);
     // print h
-    for(i=0;i<DOT_WIDTH;i++){
+    for(i=0;i<6;i++){
       I2C_Write(time_h_bitmap[i+tmp*6]);
     }
     I2C_Stop();
@@ -306,7 +306,7 @@ void ssd1306_printTimeM(uint8_t x, uint8_t y, uint8_t num){
     ssd1306_printDigitLine(tmp,a[1]);
     I2C_Write(0);
     // print h
-    for(i=0;i<DOT_WIDTH;i++){
+    for(i=0;i<10;i++){
       I2C_Write(time_m_bitmap[i+tmp*10]);
     }
     I2C_Stop();
@@ -340,7 +340,7 @@ void ssd1306_printTimeS(uint8_t x, uint8_t y, uint8_t num){
     ssd1306_printDigitLine(tmp,a[1]);
     I2C_Write(0);
     // print h
-    for(i=0;i<DOT_WIDTH;i++){
+    for(i=0;i<5;i++){
       I2C_Write(time_s_bitmap[i+tmp*5]);
     }
     I2C_Stop();

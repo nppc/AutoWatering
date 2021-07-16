@@ -29,6 +29,10 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
           { delay_on=0;}
       }
 
+#ifdef SCROLLING
+  if(scrolldelay>0)scrolldelay--;
+#endif
+
     TMR2CN0_TF2H = 0;
   }
 //-----------------------------------------------------------------------------
@@ -66,9 +70,6 @@ SI_INTERRUPT (INT1_ISR, INT1_IRQn)
         buttonstate = BUT_SHORTPRESS;
       }
     buttoncntr=0;
-#ifdef SCROLLING
-	if(scrolldelay>0)scrolldelay--;
-#endif
   }
 
 //-----------------------------------------------------------------------------

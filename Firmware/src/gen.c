@@ -26,16 +26,16 @@ bit run_timers(void){
 		second_tick=0;
 		switch (glob.machinestate){
 			case MACHINE_WAIT:
-				if(p_wait_sub_s>0){
-					p_wait_sub_s--;
+				if(glob.p_wait_sub_s>0){
+					glob.p_wait_sub_s--;
 				}else{
-					p_wait_sub_s = 60;
-					if(p_wait_cntr_m>0)p_wait_cntr_m--;
+					glob.p_wait_sub_s = 60;
+					if(glob.p_wait_cntr_m>0) glob.p_wait_cntr_m--;
 					retval=1;
 				}
 				break;
 			case MACHINE_RUN:
-				if(p_run_cntr_s>0)p_run_cntr_s--;
+				if(glob.p_run_cntr_s>0) glob.p_run_cntr_s--;
 				retval=1;
 				break;
 		}
@@ -47,7 +47,7 @@ bit run_timers(void){
 void show_time_s(uint16_t num){
 	int16_t tmp;
 	tmp = num;
-	ssd1306_printTimeM(24,0,tmp / 60;);
+	ssd1306_printTimeM(22,0,tmp / 60);
 	tmp = tmp % 60;
 	ssd1306_printTimeS(64,0,tmp);
 }
@@ -56,16 +56,16 @@ void show_time_s(uint16_t num){
 void show_time_m(uint16_t num){
 	int16_t tmp;
 	tmp = num;
-	ssd1306_printTimeH(24,0,tmp / 60;);
+	ssd1306_printTimeH(22,0,tmp / 60);
 	tmp = tmp % 60;
 	ssd1306_printTimeM(59,0,tmp);
 }
 
 void scroll_image(void){
-	if(scrolldelay==0 && glob.machimestate=MACHINE_RUN){
+	if(scrolldelay==0 && glob.machinestate==MACHINE_RUN){
 		// time to scroll
-		scrolldelay=2;
-	    scroll_down(11, 2);
+		scrolldelay=70; // ms
+		scroll_down(11, 2);
 		ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
 	}
 }

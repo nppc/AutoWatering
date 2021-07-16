@@ -63,6 +63,9 @@ int main(void) {
 
   loadSettingsEE();
 
+  //DEBUG
+//  eeprom_data[0].p_wait = 2;
+
   glob.p_wait_cntr_m = eeprom_data[0].p_wait;
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
@@ -70,13 +73,19 @@ int main(void) {
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
+  // initialize screen content
+  ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+  show_time_m(glob.p_wait_cntr_m);
+
  #ifdef SCROLLING 
   scroll_init(11, 2, waterrunning_bitmap); // initialize once, as we scroll only one image
 #endif
 
 
 	while(1){
-	    if(run_timers()){ // proccess timers
+	    uint8_t but;
+
+    if(run_timers()){ // proccess timers
 			// update time on screen
 			switch (glob.machinestate){
 				case MACHINE_WAIT:
@@ -90,7 +99,32 @@ int main(void) {
 		}
 		scroll_image(); // scroll icon when running pump
 		
-		uint8_t but = getButtonState();
+		// change machine state
+		switch (glob.machinestate){
+      case MACHINE_WAIT:
+        if(glob.p_wait_cntr_m==0){
+            delay_ms(500);
+            //TODO: start pump
+            glob.machinestate = MACHINE_RUN;
+            glob.p_run_cntr_s = eeprom_data[0].p_run;
+            ssd1306_clear_display();
+            show_time_s(glob.p_run_cntr_s);
+        }
+        break;
+      case MACHINE_RUN:
+        if(glob.p_run_cntr_s==0){
+            delay_ms(200);
+            //TODO: stop pump
+            glob.machinestate = MACHINE_WAIT;
+            glob.p_wait_cntr_m = eeprom_data[0].p_wait;
+            ssd1306_clear_display();
+            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+            show_time_m(glob.p_wait_cntr_m);
+        }
+        break;
+		}
+
+		but = getButtonState();
 	    // check button
 	    if(but==BUT_PRESSED){ // button is pressed but not released
 	        // enter calibration mode
@@ -98,7 +132,7 @@ int main(void) {
           ssd1306_clear_display();
           //TODO: long press
           //ssd1306_printBitmap(0,1,57,2,calib_bitmap);
-          if(glob.displaystate==DISPLAY_CALIB) ssd1306_printNumber(123);
+          //if(glob.displaystate==DISPLAY_CALIB) ssd1306_printNumber(123);
           delay_ms(250);
       }else if(but==BUT_LONGPRESS){
           // button is released from long press

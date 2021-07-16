@@ -9,7 +9,7 @@
 /***** COMPILATION VARIANTS *****/
 //#define DEBUGUART
 //#define DEBUG
-//#define PREVENTFLASHWRITE
+#define PREVENTFLASHWRITE
 
 SI_SBIT(PIN_1, SFR_P1, 0); //P+
 SI_SBIT(PIN_2, SFR_P1, 1); //P-
