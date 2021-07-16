@@ -11,6 +11,7 @@
 #include "main.h"
 #include "gen.h"
 #include "button.h"
+#include "SSD1306.h"
 
 //-----------------------------------------------------------------------------
 // TIMER2_ISR
@@ -53,6 +54,7 @@ SI_INTERRUPT (TIMER0_ISR, TIMER0_IRQn)
 // TCON::IE1 (External Interrupt 1)
 //
 //-----------------------------------------------------------------------------
+// every 32ms
 SI_INTERRUPT (INT1_ISR, INT1_IRQn)
   {
     if(buttoncntr>161)
@@ -64,6 +66,9 @@ SI_INTERRUPT (INT1_ISR, INT1_IRQn)
         buttonstate = BUT_SHORTPRESS;
       }
     buttoncntr=0;
+#ifdef SCROLLING
+	if(scrolldelay>0)scrolldelay--;
+#endif
   }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +88,6 @@ SI_INTERRUPT (PCA0_ISR, PCA0_IRQn)
   {
     PCA0CN0_CCF0=0;
     PCA0=0;
-    glob.batcheckcntr++;
+	second_tick=1;
   }
 

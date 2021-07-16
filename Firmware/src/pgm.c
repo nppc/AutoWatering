@@ -16,7 +16,7 @@ void storeSettingsEE(void){
 	uint8_t i, crc;
 	uint8_t *eeprom_ptr = eeprom_data;
 	uint8_t code *pflashwrite; // define empty pointer
-	pflashwrite = EE_CALIBDATA; // assign address to a pointer
+	pflashwrite = EE_DATA; // assign address to a pointer
 	//int16_t val1, val2;
 	// store to flash
 #ifdef PREVENTFLASHWRITE
@@ -24,7 +24,7 @@ void storeSettingsEE(void){
 #else
 	flkey_prepare
 #endif
-	erasePageEEflash(EE_CALIBDATA);
+	erasePageEEflash(EE_DATA);
 	for(i=0;i<(sizeof(eeprom_t));i++){
 		write_flash_byte(eeprom_ptr[i], (uint16_t)&pflashwrite[i]);
 	}
@@ -35,16 +35,8 @@ void storeSettingsEE(void){
 }
 
 void defaultSettingsEE(void){
-//	eeprom_t[0].p_wait = 120; // minutes
-//	eeprom_t[0].p_run = 15; // seconds
-  /*
-	  calib_data[0].ADCval = 3855; calib_data[0].divconst = 6740; //=(ADCval[0]-ADCval[1])*256/100
-	  calib_data[1].ADCval = 1222; calib_data[1].divconst = 1400;
-	  calib_data[2].ADCval = 675; calib_data[2].divconst = 369;
-	  calib_data[3].ADCval = 531; calib_data[3].divconst = 207;
-	  calib_data[4].ADCval = 450; calib_data[4].divconst = 169; //=(ADCval[4]-ADCval[5])*256/100
-	  calib_data[5].ADCval = 384; calib_data[5].divconst = 0; // no calculation after 5EC
-*/
+	eeprom_data[0].p_wait = 120; // minutes
+	eeprom_data[0].p_run = 15; // seconds
 }
 
 
@@ -53,7 +45,7 @@ void loadSettingsEE(void){
 	uint8_t i, crc_calc,crc_stored;
 	uint8_t *eeprom_ptr = eeprom_data;
 	uint8_t code *pflashread; // define empty pointer
-	pflashread = EE_CALIBDATA; // assign address to a pointer
+	pflashread = EE_DATA; // assign address to a pointer
 
 	crc_calc = calculateCRCsettingsEE();
 	crc_stored = CBYTE[EE_CRC];
@@ -63,8 +55,7 @@ void loadSettingsEE(void){
 		storeSettingsEE();
 	}
 	// read flash
-
-	for(i=0;i<(EE_CRC-EE_CALIBDATA);i++){
+	for(i=0;i<(EE_CRC-EE_DATA);i++){
 		eeprom_ptr[i]=pflashread[i];
 	}
 }
@@ -73,9 +64,9 @@ void loadSettingsEE(void){
 uint8_t calculateCRCsettingsEE(void){
 	uint8_t i, crc=0;
 	uint8_t code *pflashread; // define empty pointer
-	pflashread = EE_CALIBDATA; // assign address to a pointer
+	pflashread = EE_DATA; // assign address to a pointer
 
-	for(i=0;i<(EE_CRC-EE_CALIBDATA);i++){
+	for(i=0;i<(EE_CRC-EE_DATA);i++){
 		crc+=pflashread[i];
 	}
 	return crc=~crc+1;
@@ -109,7 +100,7 @@ void disable_flash_write(void){
 
 // store byte to address passed by value
 void write_flash_byte (uint8_t source, uint8_t xdata * destination){
-	if(destination>=EE_CALIBDATA){
+	if(destination>=EE_DATA){
 		enable_flash_write();
 #ifndef PREVENTFLASHWRITE
 		*destination = source;  // Move the data to flash

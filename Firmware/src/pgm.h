@@ -3,8 +3,8 @@
 
 #include "main.h"
 
-/****** EEPROM MAPP ******/
-#define EE_CALIBDATA	0x1E00
+/****** EEPROM MAP ******/
+#define EE_DATA			0x1E00
 #define EE_CRC			0x1E00+sizeof(eeprom_t)
 //#define EE_CODELASTADDR	0x1FFF	// last address of the code flash
 

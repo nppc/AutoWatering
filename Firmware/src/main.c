@@ -27,6 +27,8 @@
 volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
+volatile bit second_tick;
+
 //-----------------------------------------------------------------------------
 // SiLabs_Startup() Routine
 // ----------------------------------------------------------------------------
@@ -50,7 +52,8 @@ int main(void) {
 
   buttonstate = BUT_NOTPRESSED;
   glob.displaystate = DISPLAY_EC;
-  glob.batcheckcntr = 0;
+  glob.machinestate = MACHINE_WAIT;
+  glob.p_wait_sub_s = 60;
 
 #ifdef DEBUGUART
 	prnUART("START",1);
@@ -58,28 +61,36 @@ int main(void) {
 
   delay_ms(50); // need for ssd1306 init
 
-  //loadSettingsEE();
+  loadSettingsEE();
+
+  glob.p_wait_cntr_m = eeprom_data[0].p_wait;
+  glob.p_run_cntr_s = eeprom_data[0].p_run;
 
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-  scroll_init(11, 2, waterrunning_bitmap);
-  while(1){
-    scroll_down(11, 2);
-    ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
-    delay_ms(80);
-  }
-  
+ #ifdef SCROLLING 
+  scroll_init(11, 2, waterrunning_bitmap); // initialize once, as we scroll only one image
+#endif
 
 
 	while(1){
-	    uint8_t but = getButtonState();
-	    
-      // check battery every minute
-	    if(glob.batcheckcntr>60){
-	    }
-
+	    if(run_timers()){ // proccess timers
+			// update time on screen
+			switch (glob.machinestate){
+				case MACHINE_WAIT:
+					ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+					show_time_m(glob.p_wait_cntr_m);
+					break;
+				case MACHINE_RUN:
+					show_time_s(glob.p_run_cntr_s);
+					break;
+			}
+		}
+		scroll_image(); // scroll icon when running pump
+		
+		uint8_t but = getButtonState();
 	    // check button
 	    if(but==BUT_PRESSED){ // button is pressed but not released
 	        // enter calibration mode
@@ -96,10 +107,6 @@ int main(void) {
         // freeze/unfreeze display
       }else{
           // TODO: no button pressed
-        if(glob.displaystate!=DISPLAY_EC) ssd1306_clear_display();
-        glob.displaystate=DISPLAY_EC;
-        //ssd1306_printBitmap(0,1,29,3,ec_bitmap);
-        delay_ms(100);
       }
 	}
 
