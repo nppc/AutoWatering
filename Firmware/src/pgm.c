@@ -35,8 +35,8 @@ void storeSettingsEE(void){
 }
 
 void defaultSettingsEE(void){
-	eeprom_t[0].p_wait = 120; // minutes
-	eeprom_t[0].p_run = 15; // seconds
+//	eeprom_t[0].p_wait = 120; // minutes
+//	eeprom_t[0].p_run = 15; // seconds
   /*
 	  calib_data[0].ADCval = 3855; calib_data[0].divconst = 6740; //=(ADCval[0]-ADCval[1])*256/100
 	  calib_data[1].ADCval = 1222; calib_data[1].divconst = 1400;

@@ -11,7 +11,7 @@
 #define SSD1306_DATA 0x40
 
 #ifdef SCROLLING
-extern xdata scrlbuff[];
+extern uint8_t xdata scrlbuff[];
 void scroll_init(uint8_t w, uint8_t h, uint8_t code *bmp);
 void ssd1306_printBitmapX(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t xdata *bmp);
 void scroll_down(uint8_t w, uint8_t h);

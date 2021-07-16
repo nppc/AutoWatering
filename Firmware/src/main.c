@@ -66,9 +66,9 @@ int main(void) {
 
   scroll_init(11, 2, waterrunning_bitmap);
   while(1){
-	scroll_down(11, 2);
-	ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
-	delay_ms(100);  
+    scroll_down(11, 2);
+    ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
+    delay_ms(80);
   }
   
 

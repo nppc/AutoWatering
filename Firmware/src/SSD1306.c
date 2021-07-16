@@ -46,9 +46,27 @@ static const uint8_t code dot_bitmap[] = {
 	0x00, 0x00, 0x00, 0x00, 0x60, 0xf0, 0xf0, 0x60
 };
 
+/*
 static const uint8_t code colon_bitmap[] = {
 	// 'FontColon', 4x16px
 	0x60, 0xf0, 0xf0, 0x60, 0x60, 0xf0, 0xf0, 0x60,
+};
+*/
+
+static const uint8_t code time_h_bitmap[] = {
+// 'FontTimeH', 6x16px
+0xc0, 0xc0, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0x04, 0x06, 0xfe, 0xfc,
+};
+
+static const uint8_t code time_m_bitmap[] = {
+// 'FontTimeM', 10x16px
+0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xfe, 0xfe, 0x04, 0x06, 0xfe, 0xfc,
+0x04, 0x06, 0xfe, 0xfc,
+};
+
+static const uint8_t code time_s_bitmap[] = {
+// 'FontTimeS', 5x16px
+0x00, 0x00, 0x00, 0x00, 0x00, 0xcc, 0xde, 0xd6, 0xf6, 0x66,
 };
 
 static const uint8_t code initSSD1306sq[] = { // Initialization Sequence
@@ -374,7 +392,7 @@ void ssd1306_printNumberDebug(uint8_t x, uint8_t y, int16_t num){
 #endif
 
 #ifdef SCROLLING
-volatile xdata scrlbuff[11*2]; // set here maximum xram buffer for image rotation (the size of biggest image to rotate
+volatile uint8_t xdata scrlbuff[11*2]; // set here maximum xram buffer for image rotation (the size of biggest image to rotate
 
 // copy image to buffer to able to scroll (no output to LCD)
 void scroll_init(uint8_t w, uint8_t h, uint8_t code *bmp){
@@ -387,18 +405,20 @@ void scroll_init(uint8_t w, uint8_t h, uint8_t code *bmp){
 
 void scroll_down(uint8_t w, uint8_t h){
 	// read first vertical image line
-	bit carry_f = 0, carry_fbck = 0;
+	bit carry_f, carry_fbck;
 	uint8_t b, v, c;
 	for(c=0;c<w;c++){
+	  carry_f = 0;
+	  carry_fbck = 0;
 		for(v=0;v<h;v++){
 			b = scrlbuff[v*w+c]; // read first byte
 			carry_f = (b > 127 ? 1 : 0); // get bit to carry if needed
 			b = b<<1; // scroll one bit to the left
-			b |= (128 * carry_fbck); // set carry bit
+			b |= carry_fbck; // set carry bit
 			scrlbuff[v*w+c] = b;
 			carry_fbck = carry_f; // store carry bit
 		}
-		scrlbuff[c] |= (128 * carry_fbck); // set carry bit
+		scrlbuff[c] |= carry_fbck; // set carry bit
 	}
 }
 
