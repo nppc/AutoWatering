@@ -1,13 +1,21 @@
 #ifndef INC_SSD1306_H_
 #define INC_SSD1306_H_
 
-#define SSD1306_COLUMNS 128
-#define SSD1306_PAGES 4
+#define SCROLLING  // enable scrolling routines
+
+#define SSD1306_COLUMNS 96
+#define SSD1306_PAGES 2
 #define SSD1306_ROTATION 0  // 0 and 180
 
 #define SSD1306_COMMAND 0x00
 #define SSD1306_DATA 0x40
 
+#ifdef SCROLLING
+extern xdata scrlbuff[];
+void scroll_init(uint8_t w, uint8_t h, uint8_t code *bmp);
+void ssd1306_printBitmapX(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t xdata *bmp);
+void scroll_down(uint8_t w, uint8_t h);
+#endif
 
 extern void ssd1306_init(void);
 void ssd1306_send_command_start(void);
@@ -16,9 +24,12 @@ void ssd1306_write_display_start(void);
 void ssd1306_clear_display(void);
 void setCol(uint8_t col);
 void setRow(uint8_t row);
-void ssd1306_printNumber(int16_t num);
+void ssd1306_printNumber(uint8_t x, uint8_t y, int16_t num);
+void ssd1306_printTimeH(uint8_t x, uint8_t y, uint8_t num);
+void ssd1306_printTimeM(uint8_t x, uint8_t y, uint8_t num);
+void ssd1306_printTimeS(uint8_t x, uint8_t y, uint8_t num);
 #ifdef DEBUG
-void ssd1306_printNumberDebug(int16_t num);
+void ssd1306_printNumberDebug(uint8_t x, uint8_t y, int16_t num);
 #endif
 void ssd1306_printBitmap(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t code *bmp);
 void ssd1306_printBitmapClear(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
@@ -78,7 +89,8 @@ void ssd1306_printBitmapClear(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 //------------------------------------------------------------------------------
 
 // Font constants
-#define number_width 18
-#define dot_width 6
+#define NUMBER_HEIGHT 2 // pages
+#define NUMBER_WIDTH 12
+#define DOT_WIDTH 4
 
 #endif /* INC_SSD1306_H_ */

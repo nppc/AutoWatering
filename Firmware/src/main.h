@@ -24,7 +24,8 @@ typedef struct
 
 typedef struct
 {
-  uint8_t d;
+  uint16_t p_wait; // pump not working (minutes)
+  uint16_t p_run;  // pump is working (seconds)
 } eeprom_t;
 
 extern eeprom_t xdata eeprom_data[];

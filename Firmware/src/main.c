@@ -64,7 +64,13 @@ int main(void) {
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-  ssd1306_printBitmap(10, 0, 53, 2, wait_bitmap);
+  scroll_init(11, 2, waterrunning_bitmap);
+  while(1){
+	scroll_down(11, 2);
+	ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
+	delay_ms(100);  
+  }
+  
 
 
 	while(1){
