@@ -25,10 +25,7 @@ enter_DefaultMode_from_RESET (void)
   // $[Config Calls]
   WDT_0_enter_DefaultMode_from_RESET ();
   PORTS_0_enter_DefaultMode_from_RESET ();
-  PORTS_1_enter_DefaultMode_from_RESET ();
   PBCFG_0_enter_DefaultMode_from_RESET ();
-  ADC_0_enter_DefaultMode_from_RESET ();
-  VREF_0_enter_DefaultMode_from_RESET ();
   LFOSC_0_enter_DefaultMode_from_RESET ();
   CLOCK_0_enter_DefaultMode_from_RESET ();
   TIMER16_2_enter_DefaultMode_from_RESET ();
@@ -79,41 +76,41 @@ extern void
 PORTS_0_enter_DefaultMode_from_RESET (void)
 {
   // $[P0 - Port 0 Pin Latch]
+  /***********************************************************************
+   - P0.0 is high. Set P0.0 to drive or float high
+   - P0.1 is high. Set P0.1 to drive or float high
+   - P0.2 is high. Set P0.2 to drive or float high
+   - P0.3 is low. Set P0.3 to drive low
+   - P0.4 is high. Set P0.4 to drive or float high
+   - P0.5 is high. Set P0.5 to drive or float high
+   - P0.6 is high. Set P0.6 to drive or float high
+   - P0.7 is high. Set P0.7 to drive or float high
+   ***********************************************************************/
+  P0 = P0_B0__HIGH | P0_B1__HIGH | P0_B2__HIGH | P0_B3__LOW | P0_B4__HIGH
+      | P0_B5__HIGH | P0_B6__HIGH | P0_B7__HIGH;
   // [P0 - Port 0 Pin Latch]$
 
   // $[P0MDOUT - Port 0 Output Mode]
+  /***********************************************************************
+   - P0.0 output is open-drain
+   - P0.1 output is open-drain
+   - P0.2 output is open-drain
+   - P0.3 output is push-pull
+   - P0.4 output is open-drain
+   - P0.5 output is open-drain
+   - P0.6 output is open-drain
+   - P0.7 output is open-drain
+   ***********************************************************************/
+  P0MDOUT = P0MDOUT_B0__OPEN_DRAIN | P0MDOUT_B1__OPEN_DRAIN
+      | P0MDOUT_B2__OPEN_DRAIN | P0MDOUT_B3__PUSH_PULL | P0MDOUT_B4__OPEN_DRAIN
+      | P0MDOUT_B5__OPEN_DRAIN | P0MDOUT_B6__OPEN_DRAIN
+      | P0MDOUT_B7__OPEN_DRAIN;
   // [P0MDOUT - Port 0 Output Mode]$
 
   // $[P0MDIN - Port 0 Input Mode]
-  /***********************************************************************
-   - P0.0 pin is configured for digital mode
-   - P0.1 pin is configured for digital mode
-   - P0.2 pin is configured for digital mode
-   - P0.3 pin is configured for analog mode
-   - P0.4 pin is configured for digital mode
-   - P0.5 pin is configured for digital mode
-   - P0.6 pin is configured for digital mode
-   - P0.7 pin is configured for analog mode
-   ***********************************************************************/
-  P0MDIN = P0MDIN_B0__DIGITAL | P0MDIN_B1__DIGITAL | P0MDIN_B2__DIGITAL
-      | P0MDIN_B3__ANALOG | P0MDIN_B4__DIGITAL | P0MDIN_B5__DIGITAL
-      | P0MDIN_B6__DIGITAL | P0MDIN_B7__ANALOG;
   // [P0MDIN - Port 0 Input Mode]$
 
   // $[P0SKIP - Port 0 Skip]
-  /***********************************************************************
-   - P0.0 pin is not skipped by the crossbar
-   - P0.1 pin is not skipped by the crossbar
-   - P0.2 pin is not skipped by the crossbar
-   - P0.3 pin is skipped by the crossbar
-   - P0.4 pin is not skipped by the crossbar
-   - P0.5 pin is not skipped by the crossbar
-   - P0.6 pin is not skipped by the crossbar
-   - P0.7 pin is skipped by the crossbar
-   ***********************************************************************/
-  P0SKIP = P0SKIP_B0__NOT_SKIPPED | P0SKIP_B1__NOT_SKIPPED
-      | P0SKIP_B2__NOT_SKIPPED | P0SKIP_B3__SKIPPED | P0SKIP_B4__NOT_SKIPPED
-      | P0SKIP_B5__NOT_SKIPPED | P0SKIP_B6__NOT_SKIPPED | P0SKIP_B7__SKIPPED;
   // [P0SKIP - Port 0 Skip]$
 
   // $[P0MASK - Port 0 Mask]
@@ -146,75 +143,6 @@ PBCFG_0_enter_DefaultMode_from_RESET (void)
 
 }
 
-extern void
-ADC_0_enter_DefaultMode_from_RESET (void)
-{
-  // $[ADC0CN1 - ADC0 Control 1]
-  // [ADC0CN1 - ADC0 Control 1]$
-
-  // $[ADC0MX - ADC0 Multiplexer Selection]
-  /***********************************************************************
-   - Select ADC0.7
-   ***********************************************************************/
-  ADC0MX = ADC0MX_ADC0MX__ADC0P7;
-  // [ADC0MX - ADC0 Multiplexer Selection]$
-
-  // $[ADC0CF - ADC0 Configuration]
-  /***********************************************************************
-   - SAR Clock Divider = 0x03
-   - ADC0 operates in 10-bit or 12-bit mode 
-   - The on-chip PGA gain is 1
-   - Normal Track Mode
-   ***********************************************************************/
-  ADC0CF = (0x03 << ADC0CF_ADSC__SHIFT) | ADC0CF_AD8BE__NORMAL
-      | ADC0CF_ADGN__GAIN_1 | ADC0CF_ADTM__TRACK_NORMAL;
-  // [ADC0CF - ADC0 Configuration]$
-
-  // $[ADC0AC - ADC0 Accumulator Configuration]
-  /***********************************************************************
-   - Right justified. No shifting applied
-   - Enable 12-bit mode
-   - ADC0H:ADC0L contain the result of the latest conversion when Burst
-   Mode is disabled
-   - Perform and Accumulate 4 conversions 
-   ***********************************************************************/
-  ADC0AC = ADC0AC_ADSJST__RIGHT_NO_SHIFT | ADC0AC_AD12BE__12_BIT_ENABLED
-      | ADC0AC_ADAE__ACC_DISABLED | ADC0AC_ADRPT__ACC_4;
-  // [ADC0AC - ADC0 Accumulator Configuration]$
-
-  // $[ADC0TK - ADC0 Burst Mode Track Time]
-  /***********************************************************************
-   - The ADC will sample the input once at the beginning of each 12-bit
-   conversion
-   - Burst Mode Tracking Time = 0x1E
-   ***********************************************************************/
-  ADC0TK = ADC0TK_AD12SM__SAMPLE_ONCE | (0x1E << ADC0TK_ADTK__SHIFT);
-  // [ADC0TK - ADC0 Burst Mode Track Time]$
-
-  // $[ADC0PWR - ADC0 Power Control]
-  // [ADC0PWR - ADC0 Power Control]$
-
-  // $[ADC0GTH - ADC0 Greater-Than High Byte]
-  // [ADC0GTH - ADC0 Greater-Than High Byte]$
-
-  // $[ADC0GTL - ADC0 Greater-Than Low Byte]
-  // [ADC0GTL - ADC0 Greater-Than Low Byte]$
-
-  // $[ADC0LTH - ADC0 Less-Than High Byte]
-  // [ADC0LTH - ADC0 Less-Than High Byte]$
-
-  // $[ADC0LTL - ADC0 Less-Than Low Byte]
-  // [ADC0LTL - ADC0 Less-Than Low Byte]$
-
-  // $[ADC0CN0 - ADC0 Control 0]
-  /***********************************************************************
-   - Enable ADC0 
-   - Enable ADC0 burst mode
-   ***********************************************************************/
-  ADC0CN0 |= ADC0CN0_ADEN__ENABLED | ADC0CN0_ADBMEN__BURST_ENABLED;
-  // [ADC0CN0 - ADC0 Control 0]$
-
-}
 
 extern void
 CLOCK_0_enter_DefaultMode_from_RESET (void)
@@ -319,68 +247,7 @@ INTERRUPT_0_enter_DefaultMode_from_RESET (void)
 
 }
 
-extern void
-PORTS_1_enter_DefaultMode_from_RESET (void)
-{
-  // $[P1 - Port 1 Pin Latch]
-  // [P1 - Port 1 Pin Latch]$
 
-  // $[P1MDOUT - Port 1 Output Mode]
-  // [P1MDOUT - Port 1 Output Mode]$
-
-  // $[P1MDIN - Port 1 Input Mode]
-  /***********************************************************************
-   - P1.0 pin is configured for analog mode
-   - P1.1 pin is configured for analog mode
-   - P1.2 pin is configured for digital mode
-   - P1.3 pin is configured for digital mode
-   - P1.4 pin is configured for digital mode
-   - P1.5 pin is configured for digital mode
-   - P1.6 pin is configured for digital mode
-   ***********************************************************************/
-  P1MDIN = P1MDIN_B0__ANALOG | P1MDIN_B1__ANALOG | P1MDIN_B2__DIGITAL
-      | P1MDIN_B3__DIGITAL | P1MDIN_B4__DIGITAL | P1MDIN_B5__DIGITAL
-      | P1MDIN_B6__DIGITAL;
-  // [P1MDIN - Port 1 Input Mode]$
-
-  // $[P1SKIP - Port 1 Skip]
-  /***********************************************************************
-   - P1.0 pin is skipped by the crossbar
-   - P1.1 pin is skipped by the crossbar
-   - P1.2 pin is not skipped by the crossbar
-   - P1.3 pin is not skipped by the crossbar
-   - P1.4 pin is not skipped by the crossbar
-   - P1.5 pin is not skipped by the crossbar
-   - P1.6 pin is not skipped by the crossbar
-   ***********************************************************************/
-  P1SKIP = P1SKIP_B0__SKIPPED | P1SKIP_B1__SKIPPED | P1SKIP_B2__NOT_SKIPPED
-      | P1SKIP_B3__NOT_SKIPPED | P1SKIP_B4__NOT_SKIPPED | P1SKIP_B5__NOT_SKIPPED
-      | P1SKIP_B6__NOT_SKIPPED;
-  // [P1SKIP - Port 1 Skip]$
-
-  // $[P1MASK - Port 1 Mask]
-  // [P1MASK - Port 1 Mask]$
-
-  // $[P1MAT - Port 1 Match]
-  // [P1MAT - Port 1 Match]$
-
-}
-
-extern void
-VREF_0_enter_DefaultMode_from_RESET (void)
-{
-  // $[REF0CN - Voltage Reference Control]
-  /***********************************************************************
-   - Disable the Temperature Sensor
-   - The ADC0 ground reference is the GND pin
-   - The internal reference operates at 1.65 V nominal
-   - The ADC0 voltage reference is the VDD pin
-   ***********************************************************************/
-  REF0CN = REF0CN_TEMPE__TEMP_DISABLED | REF0CN_GNDSL__GND_PIN
-      | REF0CN_IREFLVL__1P65 | REF0CN_REFSL__VDD_PIN;
-  // [REF0CN - Voltage Reference Control]$
-
-}
 
 extern void
 TIMER_SETUP_0_enter_DefaultMode_from_RESET (void)

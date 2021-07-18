@@ -253,7 +253,7 @@
         	
     </storageModule>
     	
-    <storageModule moduleId="com.silabs.ss.framework.ide.project.core.cpp" project.generation="6" projectCommon.boardIds="com.silabs.board.none:0.0.0" projectCommon.buildArtifactType="EXE" projectCommon.copiedFiles="[]" projectCommon.importModeId="LINK_LIBRARIES" projectCommon.partId="mcu.8051.efm8.bb3.EFM8BB10f16g-a-qfn24" projectCommon.sdkId="com.silabs.sdk.8051:4.2.0.0_-1219907730"/>
+    <storageModule moduleId="com.silabs.ss.framework.ide.project.core.cpp" project.generation="1" projectCommon.boardIds="com.silabs.board.none:0.0.0" projectCommon.buildArtifactType="EXE" projectCommon.copiedFiles="[]" projectCommon.importModeId="LINK_LIBRARIES" projectCommon.partId="mcu.8051.efm8.bb3.EFM8BB10f16g-a-qfn24" projectCommon.sdkId="com.silabs.sdk.8051:4.2.0.0_-1219907730"/>
     	
     <storageModule moduleId="cdtBuildSystem" version="4.0.0">
         		
