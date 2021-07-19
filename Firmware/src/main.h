@@ -22,6 +22,7 @@ typedef struct
 	MACHINE_STATE machinestate; // what does the firmware doing at the moment
 	uint8_t p_wait_sub_s; // seconds counter for wait period
 	uint16_t p_wait_cntr_m, p_run_cntr_s; // timer counters (m - minutes, s - seconds)
+	uint16_t screenSaverCntr; // start screen saver mode after some time of inactivity
 } glob_t;
 
 typedef struct

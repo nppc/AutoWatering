@@ -24,6 +24,10 @@ PORTS_0_enter_DefaultMode_from_RESET (void);
 extern void
 PBCFG_0_enter_DefaultMode_from_RESET (void);
 extern void
+ADC_0_enter_DefaultMode_from_RESET (void);
+extern void
+VREF_0_enter_DefaultMode_from_RESET (void);
+extern void
 LFOSC_0_enter_DefaultMode_from_RESET (void);
 extern void
 CLOCK_0_enter_DefaultMode_from_RESET (void);

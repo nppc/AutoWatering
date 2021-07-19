@@ -23,6 +23,7 @@
 #include "button.h"
 #include "pgm.h"
 #include "bitmaps.h"
+#include "screensaver.h"
 
 volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
@@ -61,6 +62,8 @@ int main(void) {
 
   delay_ms(50); // need for ssd1306 init
 
+  initSSaver();
+
   loadSettingsEE();
 
   //DEBUG
@@ -72,6 +75,16 @@ int main(void) {
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
+
+/*
+  glob.p_wait_cntr_m = 40; // debug
+  while(1){
+  fillSSaverBuffer();
+  fillSSaverOled();
+  delay_ms(2000);
+  ssd1306_clear_display();
+  }
+  */
 
   // initialize screen content
   ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
@@ -142,6 +155,7 @@ int main(void) {
             delay_ms(200);
             glob.machinestate = MACHINE_WAIT;
             glob.p_wait_cntr_m = eeprom_data[0].p_wait;
+            glob.p_wait_sub_s = 60;
             ssd1306_clear_display();
             ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
             show_time_m(glob.p_wait_cntr_m);
