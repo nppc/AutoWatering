@@ -119,32 +119,35 @@ int main(void) {
     // check button
     if(but==BUT_PRESSED){ // button is pressed but not released
         // enter calibration mode
-        if(glob.displaystate==DISPLAY_CALIB) glob.displaystate=DISPLAY_CALIBNUMBLINK; else glob.displaystate=DISPLAY_CALIB;
-        ssd1306_clear_display();
+        //if(glob.displaystate==DISPLAY_CALIB) glob.displaystate=DISPLAY_CALIBNUMBLINK; else glob.displaystate=DISPLAY_CALIB;
+        //ssd1306_clear_display();
         //long press
         if(glob.machinestate!=MACHINE_CONFIG){
             glob.machinestate = MACHINE_CONFIG;
             glob.configstate = CONFIG_WAIT; // start config wait time
-            configcounter_s = 32*3; // about 3 seconds
+            configcounter_s = 10*3; // about 3 seconds
         }else if(glob.configstate == CONFIG_WAIT && configcounter_s==0){
             glob.configstate = CONFIG_RUN;
-            configcounter_s = 32*3; // about 3 seconds
+            configcounter_s = 10*3; // about 3 seconds
         }else if(glob.configstate == CONFIG_RUN && configcounter_s==0){
             glob.configstate = CONFIG_WAIT;
-            configcounter_s = 32*3; // about 3 seconds
+            configcounter_s = 10*3; // about 3 seconds
         }
     }else if(but==BUT_LONGPRESS){
-        // button is released from long press
-		// Go to subconfig menu
-		if(glob.configstate==CONFIG_WAIT){
-			glob.configstate = CONFIG_WAIT_H;
-		}else if(glob.configstate==CONFIG_RUN){
-			glob.configstate = CONFIG_RUN_M;
-		}
-      }		
-
+      // button is released from long press
+      // Go to subconfig menu
+      if(glob.configstate==CONFIG_WAIT){
+        glob.configstate = CONFIG_WAIT_H;
+        configflashcntr = 0;
+        configcounter_s = 10*3; // about 3 seconds
+      }else if(glob.configstate==CONFIG_RUN){
+        glob.configstate = CONFIG_RUN_M;
+        configflashcntr = 0;
+        configcounter_s = 10*3; // about 3 seconds
+      }
     }else if(but==BUT_SHORTPRESS){
       // start/stop pump if not in config
+      uint8_t t;
       switch (glob.machinestate){
         case MACHINE_WAIT:
           glob.p_wait_cntr_m=0;
@@ -152,6 +155,35 @@ int main(void) {
         case MACHINE_RUN:
           glob.p_run_cntr_s=0;
           break;
+      }
+      // process change config values short presses
+      configcounter_s = 10*3; // about 3 seconds
+      switch (glob.configstate){
+        case CONFIG_WAIT_H:
+          t = eeprom_data[0].p_wait % 60; // preserve minutes
+          eeprom_data[0].p_wait+=60;
+          if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
+          //configcounter_s = 10*3; // about 3 seconds
+          break;
+        case CONFIG_WAIT_M:
+          t = eeprom_data[0].p_wait / 60; // preserve hours
+          eeprom_data[0].p_wait++;
+          if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
+          //configcounter_s = 10*3; // about 3 seconds
+          break;
+        case CONFIG_RUN_M:
+          t = eeprom_data[0].p_run % 60; // preserve seconds
+          eeprom_data[0].p_run+=60;
+          if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
+          //configcounter_s = 10*3; // about 3 seconds
+          break;
+        case CONFIG_RUN_S:
+          t = eeprom_data[0].p_run / 60; // preserve minutes
+          eeprom_data[0].p_run++;
+          if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
+          //configcounter_s = 10*3; // about 3 seconds
+          break;
+
       }
     }
 
@@ -181,50 +213,92 @@ int main(void) {
         break;
       case MACHINE_CONFIG:
         if(glob.configstate == CONFIG_WAIT){
-            // blink WAIT CONFIG
-			if(configflashcntr==0){
-				ssd1306_clear_display();
-				configflashcntr = 10; // half a second
-			}else if(configflashcntr<5){
-				ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-				show_time_m(eeprom_data[0].p_wait);	
-				delay_ms(10);			
-			}
+          // blink WAIT CONFIG
+          if(configflashcntr==0){
+            ssd1306_clear_display();
+            configflashcntr = 8; // 800ms
+          }else if(configflashcntr<5){
+            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+            show_time_m(eeprom_data[0].p_wait);
+            delay_ms(10);
+          }
         }else if(glob.configstate == CONFIG_RUN){
-            // blink RUN CONFIG
-			if(configflashcntr==0){
-				ssd1306_clear_display();
-				configflashcntr = 10; // half a second
-			}else if(configflashcntr<5){
-				ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-				show_time_m(eeprom_data[0].p_run);	
-				delay_ms(10);			
-			}
+          // blink RUN CONFIG
+          if(configflashcntr==0){
+            ssd1306_clear_display();
+            configflashcntr = 8; // 800ms
+          }else if(configflashcntr<5){
+            ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+            show_time_s(eeprom_data[0].p_run);
+            delay_ms(10);
+          }
         }
         break;
-      case CONFIG_WAIT_H:
-		// blink WAIT CONFIG HOURS
-		if(configflashcntr==0){
-			ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-			show_time_m(eeprom_data[0].p_wait);	
-			ssd1306_printBitmapClear(22, 0, 38, 2);
-			configflashcntr = 10; // half a second
-		}else if(configflashcntr<5){
-			ssd1306_printTimeH(22,0,eeprom_data[0].p_wait / 60);
-			delay_ms(10);			
 		}
-		break;
+
+		switch (glob.configstate){
+		  case CONFIG_WAIT_H:
+        // blink WAIT CONFIG HOURS
+		    if(configcounter_s==0){
+		        // switch to minutes edit
+		        glob.configstate = CONFIG_WAIT_M;
+		        configflashcntr = 0;
+		        configcounter_s = 10*3; // about 3 seconds
+		    }else if(configflashcntr==0){
+          ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+          show_time_m(eeprom_data[0].p_wait);
+          ssd1306_printBitmapClear(22, 0, 36, 2);
+          configflashcntr = 8; // 800ms
+        }else if(configflashcntr<5){
+          ssd1306_printTimeH(22,0,eeprom_data[0].p_wait / 60);
+          delay_ms(10);
+        }
+        break;
       case CONFIG_RUN_M:
-		if(configflashcntr==0){
-			ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-			show_time_m(eeprom_data[0].p_run);	
-			ssd1306_printBitmapClear(22, 0, 43, 2);
-			configflashcntr = 10; // half a second
-		}else if(configflashcntr<5){
-			ssd1306_printTimeM(22,0,eeprom_data[0].p_run / 60);
-			delay_ms(10);			
-		}
-		break;
+        if(configcounter_s==0){
+            // switch to minutes edit
+            glob.configstate = CONFIG_RUN_S;
+            configflashcntr = 0;
+            configcounter_s = 10*3; // about 3 seconds
+        }else if(configflashcntr==0){
+          ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+          show_time_s(eeprom_data[0].p_run);
+          ssd1306_printBitmapClear(22, 0, 41, 2);
+          configflashcntr = 8; // 800ms
+        }else if(configflashcntr<5){
+          ssd1306_printTimeM(22,0,eeprom_data[0].p_run / 60);
+          delay_ms(10);
+        }
+        break;
+      case CONFIG_WAIT_M:
+        if(configcounter_s==0){
+            glob.machinestate = MACHINE_WAIT;
+            storeSettingsEE();
+            RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
+        }else if(configflashcntr==0){
+          ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+          show_time_m(eeprom_data[0].p_wait);
+          ssd1306_printBitmapClear(59, 0, 36, 2);
+          configflashcntr = 8; // 800ms
+        }else if(configflashcntr<5){
+          ssd1306_printTimeM(59,0,eeprom_data[0].p_wait % 60);
+          delay_ms(10);
+        }
+        break;
+      case CONFIG_RUN_S:
+        if(configcounter_s==0){
+            storeSettingsEE();
+            RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
+        }else if(configflashcntr==0){
+          ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+          show_time_s(eeprom_data[0].p_run);
+          ssd1306_printBitmapClear(64, 0, 31, 2);
+          configflashcntr = 8; // 800ms
+        }else if(configflashcntr<5){
+          ssd1306_printTimeS(64,0,eeprom_data[0].p_run % 60);
+          delay_ms(10);
+        }
+        break;
 		}
 
 	}

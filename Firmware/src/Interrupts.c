@@ -50,9 +50,6 @@ SI_INTERRUPT (TIMER0_ISR, TIMER0_IRQn)
     TCON_TF0=0;
     buttoncntr++;
     buttonstate = BUT_PRESSED;
-
-    // counter for config button delays
-    if(configcounter_s!=0)configcounter_s--;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,6 +98,10 @@ SI_INTERRUPT (PCA0_ISR, PCA0_IRQn)
 		pcacntr_s = 10;
 	}
 	
-	if(configflashcntr!=0)configflashcntr--;
+  // counter for config logic delays
+  if(configcounter_s!=0)configcounter_s--;
+
+  // counter for config data flashing on screen
+  if(configflashcntr!=0)configflashcntr--;
   }
 
