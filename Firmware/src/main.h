@@ -38,5 +38,7 @@ extern eeprom_t xdata eeprom_data[];
 extern glob_t glob;
 
 extern bit second_tick; // set to 1 every second (for time countnig operation)
+extern uint8_t pcacntr_s; // counter for seconds based on PCA0
 extern uint8_t configcounter_s; // counter for button timing while config
+extern uint8_t configflashcntr; // counter for flashing screen content while in config
 #endif /* MAIN_H_ */

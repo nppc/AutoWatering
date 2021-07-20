@@ -88,7 +88,7 @@ static const uint8_t code initSSD1306sq[] = { // Initialization Sequence
     SSD1306_COMSCANINC,                // column scan direction reversed
 #endif
     SSD1306_SETCOMPINS, 0x02,          // sequential COM pins, disable remap
-    SSD1306_SETCONTRAST, 0xAF,         // contrast control
+    //SSD1306_SETCONTRAST, 0xAF,         // contrast control
     SSD1306_SETPRECHARGE, 0xF1,        // pre-charge period (1, 15)
     SSD1306_SETVCOMDETECT, 0x20,       // vcom deselect level
     SSD1306_DEACTIVATE_SCROLL,

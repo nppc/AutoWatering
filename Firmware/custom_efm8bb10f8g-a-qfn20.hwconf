@@ -35,9 +35,9 @@
     <property object="PBCFG_0" propertyId="pbcfg.settings.enablecrossbar" value="Enabled"/>
     <property object="PCACH_0" propertyId="ABPeripheral.included" value="true"/>
     <property object="PCACH_0" propertyId="pcach.pcachannel.capturecompareflaginterrupt" value="Enabled"/>
-    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecomparehighbyte" value="39"/>
-    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecomparelowbyte" value="16"/>
-    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecompareregister" value="10000"/>
+    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecomparehighbyte" value="3"/>
+    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecomparelowbyte" value="232"/>
+    <property object="PCACH_0" propertyId="pcach.pcachannel.capturecompareregister" value="1000"/>
     <property object="PCACH_0" propertyId="pcach.pcachannel.matchfunction" value="Enabled"/>
     <property object="PCACH_0" propertyId="pcach.pcachannelcapturecomparemode.enablechannelcomparatorfunction" value="Enabled"/>
     <property object="PCACH_0" propertyId="pcach.pcacontrol.channelcapturecomparemode" value="Software timer"/>

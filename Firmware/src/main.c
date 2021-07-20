@@ -29,7 +29,9 @@ volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
 volatile bit second_tick;
-volatile uint8_t configcounter_s=0;
+volatile uint8_t pcacntr_s = 10;
+volatile uint8_t configcounter_s;
+volatile uint8_t configflashcntr;
 
 //-----------------------------------------------------------------------------
 // SiLabs_Startup() Routine
@@ -131,9 +133,15 @@ int main(void) {
             glob.configstate = CONFIG_WAIT;
             configcounter_s = 32*3; // about 3 seconds
         }
-        //delay_ms(250);
     }else if(but==BUT_LONGPRESS){
         // button is released from long press
+		// Go to subconfig menu
+		if(glob.configstate==CONFIG_WAIT){
+			glob.configstate = CONFIG_WAIT_H;
+		}else if(glob.configstate==CONFIG_RUN){
+			glob.configstate = CONFIG_RUN_M;
+		}
+      }		
 
     }else if(but==BUT_SHORTPRESS){
       // start/stop pump if not in config
@@ -147,7 +155,7 @@ int main(void) {
       }
     }
 
-		// change machine state
+		// change machine state and update the screen
 		switch (glob.machinestate){
       case MACHINE_WAIT:
         if(glob.p_wait_cntr_m==0){
@@ -174,11 +182,49 @@ int main(void) {
       case MACHINE_CONFIG:
         if(glob.configstate == CONFIG_WAIT){
             // blink WAIT CONFIG
+			if(configflashcntr==0){
+				ssd1306_clear_display();
+				configflashcntr = 10; // half a second
+			}else if(configflashcntr<5){
+				ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+				show_time_m(eeprom_data[0].p_wait);	
+				delay_ms(10);			
+			}
         }else if(glob.configstate == CONFIG_RUN){
             // blink RUN CONFIG
+			if(configflashcntr==0){
+				ssd1306_clear_display();
+				configflashcntr = 10; // half a second
+			}else if(configflashcntr<5){
+				ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+				show_time_m(eeprom_data[0].p_run);	
+				delay_ms(10);			
+			}
         }
-
         break;
+      case CONFIG_WAIT_H:
+		// blink WAIT CONFIG HOURS
+		if(configflashcntr==0){
+			ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+			show_time_m(eeprom_data[0].p_wait);	
+			ssd1306_printBitmapClear(22, 0, 38, 2);
+			configflashcntr = 10; // half a second
+		}else if(configflashcntr<5){
+			ssd1306_printTimeH(22,0,eeprom_data[0].p_wait / 60);
+			delay_ms(10);			
+		}
+		break;
+      case CONFIG_RUN_M:
+		if(configflashcntr==0){
+			ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+			show_time_m(eeprom_data[0].p_run);	
+			ssd1306_printBitmapClear(22, 0, 43, 2);
+			configflashcntr = 10; // half a second
+		}else if(configflashcntr<5){
+			ssd1306_printTimeM(22,0,eeprom_data[0].p_run / 60);
+			delay_ms(10);			
+		}
+		break;
 		}
 
 	}

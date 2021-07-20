@@ -18,6 +18,7 @@
 //-----------------------------------------------------------------------------
 // enters interrupt every 1ms
 //-----------------------------------------------------------------------------
+// every 1ms timer
 SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
   {
     // advance delay timer
@@ -88,11 +89,18 @@ SI_INTERRUPT (INT1_ISR, INT1_IRQn)
 // PCA0PWM::COVF (Cycle Overflow Flag)
 //
 //-----------------------------------------------------------------------------
-// every second
+// general timer - every 1/10 second (100ms)
 SI_INTERRUPT (PCA0_ISR, PCA0_IRQn)
   {
-    PCA0CN0_CCF0=0;
     PCA0=0;
-	second_tick=1;
+    PCA0CN0_CCF0=0;
+	
+	pcacntr_s--;
+	if(pcacntr_s==0){
+		second_tick = 1;
+		pcacntr_s = 10;
+	}
+	
+	if(configflashcntr!=0)configflashcntr--;
   }
 
