@@ -29,6 +29,7 @@ volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
 volatile bit second_tick;
+volatile uint8_t configcounter_s=0;
 
 //-----------------------------------------------------------------------------
 // SiLabs_Startup() Routine
@@ -118,10 +119,19 @@ int main(void) {
         // enter calibration mode
         if(glob.displaystate==DISPLAY_CALIB) glob.displaystate=DISPLAY_CALIBNUMBLINK; else glob.displaystate=DISPLAY_CALIB;
         ssd1306_clear_display();
-        //TODO: long press
-        //ssd1306_printBitmap(0,1,57,2,calib_bitmap);
-        //if(glob.displaystate==DISPLAY_CALIB) ssd1306_printNumber(123);
-        delay_ms(250);
+        //long press
+        if(glob.machinestate!=MACHINE_CONFIG){
+            glob.machinestate = MACHINE_CONFIG;
+            glob.configstate = CONFIG_WAIT; // start config wait time
+            configcounter_s = 32*3; // about 3 seconds
+        }else if(glob.configstate == CONFIG_WAIT && configcounter_s==0){
+            glob.configstate = CONFIG_RUN;
+            configcounter_s = 32*3; // about 3 seconds
+        }else if(glob.configstate == CONFIG_RUN && configcounter_s==0){
+            glob.configstate = CONFIG_WAIT;
+            configcounter_s = 32*3; // about 3 seconds
+        }
+        //delay_ms(250);
     }else if(but==BUT_LONGPRESS){
         // button is released from long press
 
@@ -160,6 +170,14 @@ int main(void) {
             ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
             show_time_m(glob.p_wait_cntr_m);
         }
+        break;
+      case MACHINE_CONFIG:
+        if(glob.configstate == CONFIG_WAIT){
+            // blink WAIT CONFIG
+        }else if(glob.configstate == CONFIG_RUN){
+            // blink RUN CONFIG
+        }
+
         break;
 		}
 

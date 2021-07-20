@@ -43,12 +43,16 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
 // TCON::TF0 (Timer 0 Overflow Flag)
 //
 //-----------------------------------------------------------------------------
+// every 32ms while button is pressed
 SI_INTERRUPT (TIMER0_ISR, TIMER0_IRQn)
   {
     TCON_TF0=0;
     buttoncntr++;
     buttonstate = BUT_PRESSED;
-  }
+
+    // counter for config button delays
+    if(configcounter_s!=0)configcounter_s--;
+}
 
 //-----------------------------------------------------------------------------
 // INT1_ISR
@@ -58,7 +62,7 @@ SI_INTERRUPT (TIMER0_ISR, TIMER0_IRQn)
 // TCON::IE1 (External Interrupt 1)
 //
 //-----------------------------------------------------------------------------
-// every 32ms
+// Interrupt on button release
 SI_INTERRUPT (INT1_ISR, INT1_IRQn)
   {
     if(buttoncntr>161)
