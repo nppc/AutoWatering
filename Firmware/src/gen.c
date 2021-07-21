@@ -71,7 +71,7 @@ void scroll_image(void){
 }
 
 void configAdjustValue(CONFIG_STATE state){
-  configcounter_s = 10*3; // about 3 seconds
+  uint8_t t;
   switch (state){
 	case CONFIG_WAIT_H:
 	  t = eeprom_data[0].p_wait % 60; // preserve minutes

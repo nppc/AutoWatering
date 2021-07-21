@@ -117,7 +117,9 @@ int main(void) {
 		
     but = getButtonState();
     // check button
-    if(but==BUT_PRESSED5S){ // button is pressed for longer than 5 seconds and not released
+    if(but==BUT_PRESSED){ // button is pressed
+        configcounter_s = 10*3; // about 3 seconds
+    }else if(but==BUT_PRESSED5S){ // button is pressed for longer than 5 seconds and not released
         //long press
         if(glob.machinestate!=MACHINE_CONFIG){
             glob.machinestate = MACHINE_CONFIG;
@@ -133,11 +135,20 @@ int main(void) {
     }else if(but==BUT_PRESSED2S){
 		// button is pressed for 2 seconds or longer
 		// use this only in changing config values
-	    if(glob.configstate==CONFIG_WAIT_H || glob.configstate==CONFIG_WAIT_M || glob.configstate==CONFIG_RUN_M || glob.configstate==CONFIG_RUN_S){
-			IE_EA = 0;     //Disable interrupts
-			buttoncntr = 32*2;
-			IE_EA = 1;      //Enable interrupts
-			configAdjustValue(glob.configstate);
+	  if(glob.configstate==CONFIG_WAIT_H || glob.configstate==CONFIG_WAIT_M || glob.configstate==CONFIG_RUN_M || glob.configstate==CONFIG_RUN_S){
+			uint16_t tmp;
+      IE_EA = 0;     //Disable interrupts
+      tmp = buttoncntr;
+      IE_EA = 1;      //Enable interrupts
+			if(tmp>(21*2)){ // make changing numbers a bit slower
+		      IE_EA = 0;     //Disable interrupts
+		      tmp = buttoncntr;
+		      buttoncntr = 20*2; // about 1.5S
+		      IE_EA = 1;      //Enable interrupts
+        configflashcntr = 4; // no flash during changing numbers
+        configcounter_s = 10*3; // about 3 seconds
+        configAdjustValue(glob.configstate);
+			}
 		}
 	}else if(but==BUT_LONGPRESS){
       // button is released from long press
@@ -153,7 +164,6 @@ int main(void) {
       }
     }else if(but==BUT_SHORTPRESS){
       // start/stop pump if not in config
-      uint8_t t;
       switch (glob.machinestate){
         case MACHINE_WAIT:
           glob.p_wait_cntr_m=0;
@@ -163,7 +173,8 @@ int main(void) {
           break;
       }
       // process change config values short presses
-	  configAdjustValue(glob.configstate);
+      configcounter_s = 10*3; // about 3 seconds
+      configAdjustValue(glob.configstate);
     }
 
 		// change machine state and update the screen

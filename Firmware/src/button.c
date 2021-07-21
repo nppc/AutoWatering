@@ -17,7 +17,7 @@ uint8_t getButtonState(void){
 	    IE_EA = 0;     //Disable interrupts
 	    tmpcntr = buttoncntr;
 	    IE_EA = 1;      //Enable interrupts
-		if(tmpcntr >= 32*2) tmp = BUT_PRESSED2S;
+		if(tmpcntr >= 20*2) tmp = BUT_PRESSED2S; // about 1.5s
 		if(tmpcntr >= 32*5) tmp = BUT_PRESSED5S;
 	}
 	return tmp;

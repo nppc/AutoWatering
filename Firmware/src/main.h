@@ -9,7 +9,7 @@
 /***** COMPILATION VARIANTS *****/
 //#define DEBUGUART
 //#define DEBUG
-#define PREVENTFLASHWRITE
+//#define PREVENTFLASHWRITE
 
 SI_SBIT(PIN_MOSFET, SFR_P0, 3); //Mosfet
 
