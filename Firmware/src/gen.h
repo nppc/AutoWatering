@@ -16,5 +16,6 @@ void show_time_s(uint16_t num);
 void show_time_m(uint16_t num);
 
 void scroll_image(void);
+void configAdjustValue(CONFIG_STATE state);
 
 #endif /* GEN_H_ */

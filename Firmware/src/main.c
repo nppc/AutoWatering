@@ -117,10 +117,7 @@ int main(void) {
 		
     but = getButtonState();
     // check button
-    if(but==BUT_PRESSED){ // button is pressed but not released
-        // enter calibration mode
-        //if(glob.displaystate==DISPLAY_CALIB) glob.displaystate=DISPLAY_CALIBNUMBLINK; else glob.displaystate=DISPLAY_CALIB;
-        //ssd1306_clear_display();
+    if(but==BUT_PRESSED5S){ // button is pressed for longer than 5 seconds and not released
         //long press
         if(glob.machinestate!=MACHINE_CONFIG){
             glob.machinestate = MACHINE_CONFIG;
@@ -133,7 +130,16 @@ int main(void) {
             glob.configstate = CONFIG_WAIT;
             configcounter_s = 10*3; // about 3 seconds
         }
-    }else if(but==BUT_LONGPRESS){
+    }else if(but==BUT_PRESSED2S){
+		// button is pressed for 2 seconds or longer
+		// use this only in changing config values
+	    if(glob.configstate==CONFIG_WAIT_H || glob.configstate==CONFIG_WAIT_M || glob.configstate==CONFIG_RUN_M || glob.configstate==CONFIG_RUN_S){
+			IE_EA = 0;     //Disable interrupts
+			buttoncntr = 32*2;
+			IE_EA = 1;      //Enable interrupts
+			configAdjustValue(glob.configstate);
+		}
+	}else if(but==BUT_LONGPRESS){
       // button is released from long press
       // Go to subconfig menu
       if(glob.configstate==CONFIG_WAIT){
@@ -157,34 +163,7 @@ int main(void) {
           break;
       }
       // process change config values short presses
-      configcounter_s = 10*3; // about 3 seconds
-      switch (glob.configstate){
-        case CONFIG_WAIT_H:
-          t = eeprom_data[0].p_wait % 60; // preserve minutes
-          eeprom_data[0].p_wait+=60;
-          if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
-          //configcounter_s = 10*3; // about 3 seconds
-          break;
-        case CONFIG_WAIT_M:
-          t = eeprom_data[0].p_wait / 60; // preserve hours
-          eeprom_data[0].p_wait++;
-          if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
-          //configcounter_s = 10*3; // about 3 seconds
-          break;
-        case CONFIG_RUN_M:
-          t = eeprom_data[0].p_run % 60; // preserve seconds
-          eeprom_data[0].p_run+=60;
-          if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
-          //configcounter_s = 10*3; // about 3 seconds
-          break;
-        case CONFIG_RUN_S:
-          t = eeprom_data[0].p_run / 60; // preserve minutes
-          eeprom_data[0].p_run++;
-          if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
-          //configcounter_s = 10*3; // about 3 seconds
-          break;
-
-      }
+	  configAdjustValue(glob.configstate);
     }
 
 		// change machine state and update the screen

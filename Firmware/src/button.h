@@ -6,7 +6,7 @@
 
 uint8_t getButtonState(void);
 
-typedef enum {BUT_NOTPRESSED,BUT_PRESSED,BUT_SHORTPRESS,BUT_LONGPRESS} BUT_STATE;
+typedef enum {BUT_NOTPRESSED,BUT_PRESSED,BUT_PRESSED2S,BUT_PRESSED5S,BUT_SHORTPRESS,BUT_LONGPRESS} BUT_STATE;
 
 extern int16_t buttoncntr;
 extern BUT_STATE buttonstate;

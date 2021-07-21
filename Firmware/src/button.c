@@ -3,24 +3,22 @@
 #include "button.h"
 
 volatile int16_t buttoncntr;
-volatile BUT_STATE buttonstate;
+volatile BUT_STATE buttonstate = BUT_NOTPRESSED;
 
+// Interrupts can set buttonstate to one of the states: BUT_PRESSED, BUT_LONGPRESS, BUT_SHORTPRESS,
+// This routine reads that statuses and returns them allowing kind of memory effect.
+// After status is read the status updated to BUT_NOTPRESSED.
 uint8_t getButtonState(void){
-	uint8_t tmp = buttonstate;
+	uint8_t tmp = buttonstate; // preserve button state
 	uint16_t tmpcntr;
-	if(buttonstate==BUT_PRESSED){
-		// button is pressed
+	buttonstate = BUT_NOTPRESSED; // next time we need to return no press
+	if(tmp==BUT_PRESSED){
+		// button is pressed, let's see for how long time...
 	    IE_EA = 0;     //Disable interrupts
 	    tmpcntr = buttoncntr;
 	    IE_EA = 1;      //Enable interrupts
-	  if(tmpcntr >= 161) {
-			//glob.calibselection = (tmpcntr-161)/64;
-		}else{
-		  //glob.calibselection = 0;
-			return BUT_NOTPRESSED;
-		}
-		return BUT_PRESSED;
+		if(tmpcntr >= 32*2) tmp = BUT_PRESSED2S;
+		if(tmpcntr >= 32*5) tmp = BUT_PRESSED5S;
 	}
-	buttonstate = BUT_NOTPRESSED;
 	return tmp;
 }

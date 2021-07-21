@@ -69,3 +69,33 @@ void scroll_image(void){
 		ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
 	}
 }
+
+void configAdjustValue(CONFIG_STATE state){
+  configcounter_s = 10*3; // about 3 seconds
+  switch (state){
+	case CONFIG_WAIT_H:
+	  t = eeprom_data[0].p_wait % 60; // preserve minutes
+	  eeprom_data[0].p_wait+=60;
+	  if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
+	  //configcounter_s = 10*3; // about 3 seconds
+	  break;
+	case CONFIG_WAIT_M:
+	  t = eeprom_data[0].p_wait / 60; // preserve hours
+	  eeprom_data[0].p_wait++;
+	  if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
+	  //configcounter_s = 10*3; // about 3 seconds
+	  break;
+	case CONFIG_RUN_M:
+	  t = eeprom_data[0].p_run % 60; // preserve seconds
+	  eeprom_data[0].p_run+=60;
+	  if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
+	  //configcounter_s = 10*3; // about 3 seconds
+	  break;
+	case CONFIG_RUN_S:
+	  t = eeprom_data[0].p_run / 60; // preserve minutes
+	  eeprom_data[0].p_run++;
+	  if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
+	  //configcounter_s = 10*3; // about 3 seconds
+	  break;
+  }
+}
