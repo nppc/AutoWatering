@@ -66,6 +66,7 @@ int main(void) {
   delay_ms(50); // need for ssd1306 init
 
   initSSaver();
+  fillSSaverBuffer();
 
   loadSettingsEE();
 

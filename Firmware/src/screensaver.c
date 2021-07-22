@@ -27,13 +27,29 @@ void initSSaver(void){
   srand (seed);
 }
 
-// for qsort function
-int16_t compare (const void * a, const void * b)
-{
-  ssaverdots_t *oa = (ssaverdots_t *)a;
-  ssaverdots_t *ob = (ssaverdots_t *)b;
-  return ( (int16_t)ob->sramaddr - (int16_t)oa->sramaddr );
-  //return ( *(*)a - *(int*)b );
+
+void bubblesortSsdots(uint8_t dotsnum){
+  uint8_t i,j;
+  bit sw;
+  for(i=0;i<(dotsnum-1);i++){
+      sw=0;
+      for(j=0;j<(dotsnum-i-1);j++){
+          if(ssdots[j].sramaddr>ssdots[j+1].sramaddr){
+              uint8_t tmp;
+              tmp = ssdots[j].x;
+              ssdots[j].x = ssdots[j+1].x;
+              ssdots[j+1].x = tmp;
+              tmp = ssdots[j].y;
+              ssdots[j].y = ssdots[j+1].y;
+              ssdots[j+1].y = tmp;
+              tmp = ssdots[j].sramaddr;
+              ssdots[j].sramaddr = ssdots[j+1].sramaddr;
+              ssdots[j+1].sramaddr = tmp;
+              sw=1;
+          }
+      }
+      if(!sw) break;
+  }
 }
 
 void fillSSaverBuffer(void){
@@ -43,23 +59,23 @@ void fillSSaverBuffer(void){
   memset(ssdots, 0, sizeof(ssdots));
   // generate random coordinates and make sure they will not repeat
   for(i=0;i<dotsnum;i++){
-	x = (uint32_t)95 * rand() / RAND_MAX; 
-	y = (uint32_t)15 * rand() / RAND_MAX;
-	// check do we have the same coords?
-	for(i1=0;i1<i;i1++){
-		if(ssdots[i1].x==x && ssdots[i1].y==y){
-			// generate new coords
-			x = (uint32_t)95 * rand() / RAND_MAX; 
-			y = (uint32_t)15 * rand() / RAND_MAX;
-			// restart check
-			i1=0;
-		}
-	}
-	ssdots[i].x=x; ssdots[i].y=y;
-	// and calculate address in sram of oled
-	ssdots[i].sramaddr = x + (y>7 ? 96 : 0)
+    x = (uint32_t)95 * rand() / RAND_MAX;
+    y = (uint32_t)15 * rand() / RAND_MAX;
+    // check do we have the same coords?
+    for(i1=0;i1<i;i1++){
+      if(ssdots[i1].x==x && ssdots[i1].y==y){
+        // generate new coords
+        x = (uint32_t)95 * rand() / RAND_MAX;
+        y = (uint32_t)15 * rand() / RAND_MAX;
+        // restart check
+        i1=0;
+      }
+    }
+    ssdots[i].x=x; ssdots[i].y=y;
+    // and calculate address in sram of oled
+    ssdots[i].sramaddr = x + (y>7 ? 96 : 0);
   }
-  qsort(ssdots, sizeof(ssaverdots_t), compare);
+  bubblesortSsdots(dotsnum);
 }
 
 
@@ -69,7 +85,7 @@ void fillSSaverOled(void){
   setRow(0);
   ssd1306_write_display_start();
   for(i=0;i<(96*2);i++){
-    I2C_Write(oledbuff[i]);
+    //I2C_Write(oledbuff[i]);
   }
   I2C_Stop();
 }
