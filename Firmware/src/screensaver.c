@@ -3,11 +3,14 @@
 #include "screensaver.h"
 #include "SSD1306.h"
 #include "i2c.h"
-#include <stdlib.h> // for rand
+#include <stdlib.h> // for rand and qsort
+#include <string.h> // for memset
 
 // Show random dots on OLED
+#define SSAVERMAXDOTS 40 // maximum dots for a screensaver to show at the same time
 
-volatile uint8_t xdata oledbuff[96*2]; // use this buffer for generating random dots on the screen
+volatile ssaverdots_t xdata ssdots[SSAVERMAXDOTS]; // use this buffer for generating random dots on the screen
+
 
 void initSSaver(void){
   uint16_t seed;
@@ -24,22 +27,41 @@ void initSSaver(void){
   srand (seed);
 }
 
+// for qsort function
+int16_t compare (const void * a, const void * b)
+{
+  ssaverdots_t *oa = (ssaverdots_t *)a;
+  ssaverdots_t *ob = (ssaverdots_t *)b;
+  return ( (int16_t)ob->sramaddr - (int16_t)oa->sramaddr );
+  //return ( *(*)a - *(int*)b );
+}
+
 void fillSSaverBuffer(void){
-  uint16_t i, dotsnum = (glob.p_wait_cntr_m < 40 ? glob.p_wait_cntr_m : 40); //dots count is equal to the minutes remaining, but not more than 40
+  uint16_t i, i1, dotsnum = (glob.p_wait_cntr_m < SSAVERMAXDOTS ? glob.p_wait_cntr_m : SSAVERMAXDOTS); //dots count is equal to the minutes remaining, but not more than 40
   uint8_t x, y;
-  for(i=0;i<(96*2);i++){oledbuff[i]=0;} // clear array
+  //for(i=0;i<(dotsnum);i++){ssdots[i].x=0;ssdots[i].y=0;} // clear array
+  memset(ssdots, 0, sizeof(ssdots));
   // generate random coordinates and make sure they will not repeat
   for(i=0;i<dotsnum;i++){
-      while(1){
-        x = (uint32_t)(95*2) * rand() / RAND_MAX; // determine byte on a screen
-        y = 1 << ((uint32_t)7 * rand() / RAND_MAX); // determine bit in a byte
-        // check do we have the same number?
-        if(oledbuff[x]!=y) break; //exit while - number is unique
-      }
-      oledbuff[x]|=y;
+	x = (uint32_t)95 * rand() / RAND_MAX; 
+	y = (uint32_t)15 * rand() / RAND_MAX;
+	// check do we have the same coords?
+	for(i1=0;i1<i;i1++){
+		if(ssdots[i1].x==x && ssdots[i1].y==y){
+			// generate new coords
+			x = (uint32_t)95 * rand() / RAND_MAX; 
+			y = (uint32_t)15 * rand() / RAND_MAX;
+			// restart check
+			i1=0;
+		}
+	}
+	ssdots[i].x=x; ssdots[i].y=y;
+	// and calculate address in sram of oled
+	ssdots[i].sramaddr = x + (y>7 ? 96 : 0)
   }
-  // now buffer prefilled with random dots.
+  qsort(ssdots, sizeof(ssaverdots_t), compare);
 }
+
 
 void fillSSaverOled(void){
   uint8_t i;

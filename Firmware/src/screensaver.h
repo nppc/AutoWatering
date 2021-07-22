@@ -1,14 +1,12 @@
-/*
- * screensaver.h
- *
- *  Created on: Jul 19, 2021
- *      Author: Pavel
- */
-
 #ifndef SCREENSAVER_H_
 #define SCREENSAVER_H_
 
-extern uint8_t xdata oledbuff[];
+typedef struct
+{
+  uint8_t x,y,sramaddr; // x,y - coordinate of a dot. samebyte - indicates that this coordinate will be on the same OLED SRAM address.
+} ssaverdots_t;
+
+extern ssaverdots_t xdata ssdots[];
 void initSSaver(void);
 void fillSSaverBuffer(void);
 void fillSSaverOled(void);
