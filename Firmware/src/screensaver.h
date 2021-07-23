@@ -9,6 +9,7 @@ typedef struct
 extern ssaverdots_t xdata ssdots[];
 void initSSaver(void);
 void fillSSaverBuffer(void);
-void fillSSaverOled(void);
+void drawSSaverOled(void);
+void replaceSSaverStar(void);
 
 #endif /* SCREENSAVER_H_ */

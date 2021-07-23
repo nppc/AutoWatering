@@ -79,13 +79,45 @@ void fillSSaverBuffer(void){
 }
 
 
-void fillSSaverOled(void){
-  uint8_t i;
+void drawSSaverOled(void){
+  uint8_t i, cp=0, dotsnum = (glob.p_wait_cntr_m < SSAVERMAXDOTS ? glob.p_wait_cntr_m : SSAVERMAXDOTS);;
   setCol(0);
   setRow(0);
   ssd1306_write_display_start();
   for(i=0;i<(96*2);i++){
-    //I2C_Write(oledbuff[i]);
+	uint8_t tmp=0, d=0;
+	if(cp<dotsnum) tmp=ssdots[cp].sramaddr;
+	if(i==tmp){
+		//we found address with a star. Need to check how many stars we have at the same address
+		d = 1 << (ssdots[cp].y-(ssdots[cp].y>7 ? 8 : 0)); // first dot
+		while(1){
+			cp++;
+			if(cp==dotsnum) break; // we reached the end
+			if(ssdots[cp].sramaddr == tmp){
+				d |= 1 << (ssdots[cp].y-(ssdots[cp].y>7 ? 8 : 0));
+			}else{
+				break;
+			}
+		}
+	}
+    I2C_Write(d);
   }
   I2C_Stop();
+}
+
+// remove one star and add another
+void replaceSSaverStar(void){
+	uint8_t i, x, y, cp, dotsnum = (glob.p_wait_cntr_m < SSAVERMAXDOTS ? glob.p_wait_cntr_m : SSAVERMAXDOTS);
+	bit dup=0;
+	cp = (uint32_t)dotsnum-1 * rand() / RAND_MAX; // TODO: Test do we need -1
+	x = (uint32_t)95 * rand() / RAND_MAX;
+	y = (uint32_t)15 * rand() / RAND_MAX;
+	// make sure it is unique
+	for(i=0;i<dotsnum;i++){
+		if(x=ssdots[i].x && y=ssdots[i].y) dup=1; // we found duplicate it is fine to leave everything as it is
+	}
+	if(!dup){
+		ssdots[cp].sramaddr = x + (y>7 ? 96 : 0);
+		bubblesortSsdots(dotsnum);
+	}
 }
