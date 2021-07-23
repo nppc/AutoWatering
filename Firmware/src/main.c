@@ -66,7 +66,6 @@ int main(void) {
   delay_ms(50); // need for ssd1306 init
 
   initSSaver();
-  fillSSaverBuffer();
 
   loadSettingsEE();
 
@@ -74,19 +73,23 @@ int main(void) {
   glob.p_wait_cntr_m = eeprom_data[0].p_wait;
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
+//  glob.p_wait_cntr_m = 40; // debug
+
+  fillSSaverBuffer();
+
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-
-  glob.p_wait_cntr_m = 20; // debug
+/*
+  // debug
   while(1){
-	drawSSaverOled();
-	delay_ms(2000);
-	replaceSSaverStar();
+    drawSSaverOled();
+    delay_ms(100);
+    replaceSSaverStar();
   }
-	
-
+	// end of debug
+*/
   // initialize screen content
   ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
   show_time_m(glob.p_wait_cntr_m);

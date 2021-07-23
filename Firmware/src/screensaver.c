@@ -59,14 +59,14 @@ void fillSSaverBuffer(void){
   memset(ssdots, 0, sizeof(ssdots));
   // generate random coordinates and make sure they will not repeat
   for(i=0;i<dotsnum;i++){
-    x = (uint32_t)95 * rand() / RAND_MAX;
-    y = (uint32_t)15 * rand() / RAND_MAX;
+    x = (uint32_t)96 * rand() / RAND_MAX;
+    y = (uint32_t)16 * rand() / RAND_MAX;
     // check do we have the same coords?
     for(i1=0;i1<i;i1++){
       if(ssdots[i1].x==x && ssdots[i1].y==y){
         // generate new coords
-        x = (uint32_t)95 * rand() / RAND_MAX;
-        y = (uint32_t)15 * rand() / RAND_MAX;
+        x = (uint32_t)96 * rand() / RAND_MAX;
+        y = (uint32_t)16 * rand() / RAND_MAX;
         // restart check
         i1=0;
       }
@@ -109,14 +109,24 @@ void drawSSaverOled(void){
 void replaceSSaverStar(void){
 	uint8_t i, x, y, cp, dotsnum = (glob.p_wait_cntr_m < SSAVERMAXDOTS ? glob.p_wait_cntr_m : SSAVERMAXDOTS);
 	bit dup=0;
-	cp = (uint32_t)dotsnum-1 * rand() / RAND_MAX; // TODO: Test do we need -1
-	x = (uint32_t)95 * rand() / RAND_MAX;
-	y = (uint32_t)15 * rand() / RAND_MAX;
+	cp = (uint32_t)dotsnum * rand() / RAND_MAX;
+	if(cp==dotsnum){
+	    cp=dotsnum-1;
+	}
+	x = (uint32_t)96 * rand() / RAND_MAX;
+	y = (uint32_t)16 * rand() / RAND_MAX;
+  if(x==96 || y==16){
+      x--;
+      y--;
+  }
+
 	// make sure it is unique
 	for(i=0;i<dotsnum;i++){
-		if(x=ssdots[i].x && y=ssdots[i].y) dup=1; // we found duplicate it is fine to leave everything as it is
+		if(x==ssdots[i].x && y==ssdots[i].y) dup=1; // we found duplicate it is fine to leave everything as it is
 	}
+	// update coordinates if needed
 	if(!dup){
+	  ssdots[cp].x=x;ssdots[cp].y=y;
 		ssdots[cp].sramaddr = x + (y>7 ? 96 : 0);
 		bubblesortSsdots(dotsnum);
 	}
