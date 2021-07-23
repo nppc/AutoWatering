@@ -55,9 +55,10 @@ int main(void) {
   enter_DefaultMode_from_RESET();
 
   buttonstate = BUT_NOTPRESSED;
-  glob.displaystate = DISPLAY_EC;
+  //glob.displaystate = DISPLAY_EC;
   glob.machinestate = MACHINE_WAIT;
   glob.p_wait_sub_s = 60;
+  glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
 
 #ifdef DEBUGUART
 	prnUART("START",1);
@@ -74,22 +75,12 @@ int main(void) {
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
 //  glob.p_wait_cntr_m = 40; // debug
-
   fillSSaverBuffer();
 
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-/*
-  // debug
-  while(1){
-    drawSSaverOled();
-    delay_ms(100);
-    replaceSSaverStar();
-  }
-	// end of debug
-*/
   // initialize screen content
   ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
   show_time_m(glob.p_wait_cntr_m);
@@ -102,22 +93,41 @@ int main(void) {
 	while(1){
 	    uint8_t but;
 
-    if(run_timers()){ // process timers
-			// update time on screen
-			switch (glob.machinestate){
-				case MACHINE_WAIT:
-					ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-					show_time_m(glob.p_wait_cntr_m);
-					break;
-				case MACHINE_RUN:
-					show_time_s(glob.p_run_cntr_s);
-					break;
-			}
+    if(run_timers() && glob.screenSaver_s>0){ // process timers
+		updateDataOnScreen();
+	}
+	if(glob.screenSaver_s>0) scroll_image(); // scroll icon when running pump
+	
+	// show/update screensaver
+	if(glob.screenSaver_s==0 && ssaverstart){
+		fillSSaverBuffer(); // prepare buffer
+		drawSSaverOled();
+		ssaverstart = 0;
+	}
+	if(glob.screenSaver_s<0){
+		//update once in a 10 seconds
+		if(ssaverupdate){
+			replaceSSaverStar();
+			drawSSaverOled();
+			ssaverupdate=0;
 		}
-		scroll_image(); // scroll icon when running pump
+		if(glob.screenSaver_s < -10){
+			ssaverupdate=1;
+			glob.screenSaver_s = 0;
+		}
+	}
 		
     but = getButtonState();
     // check button
+	if(but!=BUT_NOTPRESSED){
+		if(glob.screenSaver_s<=0){
+			// wake up from screen saver
+			updateDataOnScreen();
+		}
+		glob.screenSaver_s = SSAVERDELAY;
+		ssaverstart = 1; // prepare flag for next time screen saver will be activated
+	}
+	
     if(but==BUT_PRESSED){ // button is pressed
         configcounter_s = 10*3; // about 3 seconds
     }else if(but==BUT_PRESSED5S){ // button is pressed for longer than 5 seconds and not released
@@ -165,7 +175,7 @@ int main(void) {
       }
     }else if(but==BUT_SHORTPRESS){
       // start/stop pump if not in config
-      switch (glob.machinestate){
+	  switch (glob.machinestate){
         case MACHINE_WAIT:
           glob.p_wait_cntr_m=0;
           break;
@@ -187,7 +197,8 @@ int main(void) {
             glob.machinestate = MACHINE_RUN;
             glob.p_run_cntr_s = eeprom_data[0].p_run;
             ssd1306_clear_display();
-            show_time_s(glob.p_run_cntr_s);
+			glob.screenSaver_s = SSAVERDELAY;
+            //show_time_s(glob.p_run_cntr_s);
         }
         break;
       case MACHINE_RUN:
@@ -198,8 +209,9 @@ int main(void) {
             glob.p_wait_cntr_m = eeprom_data[0].p_wait;
             glob.p_wait_sub_s = 60;
             ssd1306_clear_display();
-            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(glob.p_wait_cntr_m);
+			glob.screenSaver_s = SSAVERDELAY;
+            //ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+            //show_time_m(glob.p_wait_cntr_m);
         }
         break;
       case MACHINE_CONFIG:

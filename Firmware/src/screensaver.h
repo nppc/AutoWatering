@@ -7,6 +7,7 @@ typedef struct
 } ssaverdots_t;
 
 extern ssaverdots_t xdata ssdots[];
+extern bit ssaverstart, ssaverupdate;
 void initSSaver(void);
 void fillSSaverBuffer(void);
 void drawSSaverOled(void);

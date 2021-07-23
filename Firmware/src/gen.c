@@ -24,6 +24,9 @@ bit run_timers(void){
 	bit retval=0;
 	if(second_tick){
 		second_tick=0;
+		
+		if(glob.screenSaver_s>-10) glob.screenSaver_s--;
+		
 		switch (glob.machinestate){
 			case MACHINE_WAIT:
 				if(glob.p_wait_sub_s>0){
@@ -67,6 +70,18 @@ void scroll_image(void){
 		scrolldelay=70; // ms
 		scroll_down(11, 2);
 		ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
+	}
+}
+
+void updateDataOnScreen(void){
+	switch (glob.machinestate){
+		case MACHINE_WAIT:
+			ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+			show_time_m(glob.p_wait_cntr_m);
+			break;
+		case MACHINE_RUN:
+			show_time_s(glob.p_run_cntr_s);
+			break;
 	}
 }
 

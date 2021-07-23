@@ -7,10 +7,11 @@
 #include <string.h> // for memset
 
 // Show random dots on OLED
+#define SSAVERDELAY (60 * 5)
 #define SSAVERMAXDOTS 40 // maximum dots for a screensaver to show at the same time
 
 volatile ssaverdots_t xdata ssdots[SSAVERMAXDOTS]; // use this buffer for generating random dots on the screen
-
+volatile bit ssaverstart = 0, ssaverupdate=1;
 
 void initSSaver(void){
   uint16_t seed;
