@@ -1,6 +1,9 @@
 #ifndef SCREENSAVER_H_
 #define SCREENSAVER_H_
 
+#define SSAVERDELAY (60 * 3) // 3 minutes
+#define SSAVERMAXDOTS 40 // maximum dots for a screensaver to show at the same time
+
 typedef struct
 {
   uint8_t x,y,sramaddr; // x,y - coordinate of a dot. samebyte - indicates that this coordinate will be on the same OLED SRAM address.

@@ -46,6 +46,18 @@ void SiLabs_Startup(void) {
 	// [SiLabs Startup]$
 }
 
+void updateDataOnScreen(void){
+  switch (glob.machinestate){
+    case MACHINE_WAIT:
+      ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+      show_time_m(glob.p_wait_cntr_m);
+      break;
+    case MACHINE_RUN:
+      show_time_s(glob.p_run_cntr_s);
+      break;
+  }
+}
+
 //-----------------------------------------------------------------------------
 // main() Routine
 // ----------------------------------------------------------------------------
@@ -74,7 +86,7 @@ int main(void) {
   glob.p_wait_cntr_m = eeprom_data[0].p_wait;
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
-//  glob.p_wait_cntr_m = 40; // debug
+  //glob.p_wait_cntr_m = 20; // debug
   fillSSaverBuffer();
 
   ssd1306_init();
@@ -113,20 +125,24 @@ int main(void) {
 		}
 		if(glob.screenSaver_s < -10){
 			ssaverupdate=1;
-			glob.screenSaver_s = 0;
+			glob.screenSaver_s = -1;
 		}
 	}
 		
     but = getButtonState();
     // check button
-	if(but!=BUT_NOTPRESSED){
-		if(glob.screenSaver_s<=0){
-			// wake up from screen saver
-			updateDataOnScreen();
-		}
-		glob.screenSaver_s = SSAVERDELAY;
-		ssaverstart = 1; // prepare flag for next time screen saver will be activated
-	}
+  if(glob.screenSaver_s<=0 && but==BUT_PRESSED){
+    // wake up from screen saver on button short press
+    ssd1306_clear_display();
+    updateDataOnScreen();
+    delay_ms(1000);
+    buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
+    ssaverstart = 1; // prepare flag for next time screen saver will be activated
+    glob.screenSaver_s = SSAVERDELAY;
+  }
+  if(but!=BUT_NOTPRESSED){
+      glob.screenSaver_s = SSAVERDELAY;
+  }
 	
     if(but==BUT_PRESSED){ // button is pressed
         configcounter_s = 10*3; // about 3 seconds
@@ -197,8 +213,8 @@ int main(void) {
             glob.machinestate = MACHINE_RUN;
             glob.p_run_cntr_s = eeprom_data[0].p_run;
             ssd1306_clear_display();
-			glob.screenSaver_s = SSAVERDELAY;
-            //show_time_s(glob.p_run_cntr_s);
+            glob.screenSaver_s = SSAVERDELAY;
+            show_time_s(glob.p_run_cntr_s);
         }
         break;
       case MACHINE_RUN:
@@ -209,9 +225,9 @@ int main(void) {
             glob.p_wait_cntr_m = eeprom_data[0].p_wait;
             glob.p_wait_sub_s = 60;
             ssd1306_clear_display();
-			glob.screenSaver_s = SSAVERDELAY;
-            //ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            //show_time_m(glob.p_wait_cntr_m);
+            glob.screenSaver_s = SSAVERDELAY;
+            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
+            show_time_m(glob.p_wait_cntr_m);
         }
         break;
       case MACHINE_CONFIG:

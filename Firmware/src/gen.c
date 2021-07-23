@@ -2,6 +2,7 @@
 #include "main.h"
 #include "gen.h"
 #include "SSD1306.h"
+//#include "bitmaps.h"
 
 volatile uint16_t tmp_millis;
 volatile bit delay_on;
@@ -25,7 +26,7 @@ bit run_timers(void){
 	if(second_tick){
 		second_tick=0;
 		
-		if(glob.screenSaver_s>-10) glob.screenSaver_s--;
+		glob.screenSaver_s--;
 		
 		switch (glob.machinestate){
 			case MACHINE_WAIT:
@@ -73,17 +74,6 @@ void scroll_image(void){
 	}
 }
 
-void updateDataOnScreen(void){
-	switch (glob.machinestate){
-		case MACHINE_WAIT:
-			ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-			show_time_m(glob.p_wait_cntr_m);
-			break;
-		case MACHINE_RUN:
-			show_time_s(glob.p_run_cntr_s);
-			break;
-	}
-}
 
 void configAdjustValue(CONFIG_STATE state){
   uint8_t t;
