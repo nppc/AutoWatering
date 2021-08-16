@@ -1,5 +1,6 @@
 # Periodic watering
 Simple periodic watering controller
+With OLED 96x16 pixels.
 
 Two states of operation.
 Waiting (configurable, max 99 hours and 59 minutes)
