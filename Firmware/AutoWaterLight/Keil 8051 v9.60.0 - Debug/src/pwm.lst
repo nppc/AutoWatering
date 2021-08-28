@@ -1,0 +1,150 @@
+C51 COMPILER V9.60.0.0   PWM                                                               08/28/2021 20:51:45 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PWM
+OBJECT MODULE PLACED IN .\src\pwm.OBJ
+COMPILER INVOKED BY: c:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\src\Tennp\Git
+                    -\AutoWatering\Firmware\AutoWaterLight\src\pwm.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFUZZY(3) O
+                    -PTIMIZE(8,SPEED) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Devi
+                    -ce/shared/si8051Base;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Device/EFM8BB1/inc) PRINT(.\src\pwm.
+                    -lst) COND PAGEWIDTH(120) PAGELENGTH(65) OBJECT(.\src\pwm.OBJ)
+
+line level    source
+
+   1          #include "main.h"
+   2          #include "pwm.h"
+   3          
+   4          /*
+   5          void inc_PWMout1(int16_t val){
+   6                  val = pwmglob.set_out1 + val;
+   7                  if(val>PWMMAXOUT1) val = PWMMAXOUT1;
+   8                  setval_PWMout1(val);
+   9          }
+  10          
+  11          void dec_PWMout1(int16_t val){
+  12                  val = pwmglob.set_out1 - val;
+  13                  if(val<PWMMINOUT1) val = PWMMINOUT1;
+  14                  setval_PWMout1(val);
+  15          }
+  16          
+  17          void inc_PWMout2(int16_t val){
+  18                  val = pwmglob.set_out2 + val;
+  19                  if(val>PWMMAXOUT2) val = PWMMAXOUT2;
+  20                  setval_PWMout2(val);
+  21          }
+  22          
+  23          void dec_PWMout2(int16_t val){
+  24                  val = pwmglob.set_out2 - val;
+  25                  if(val<PWMMINOUT2) val = PWMMINOUT2;
+  26                  setval_PWMout2(val);
+  27          }
+  28          */
+  29          
+  30          void enable_PWMout0(void){
+  31   1        PCA0CPM0 |= PCA0CPM0_ECOM__ENABLED; // enable led PWM
+  32   1        P0MDOUT |= P0MDOUT_B7__PUSH_PULL; // Set pushpull
+  33   1      }
+  34          
+  35          void enable_PWMout1(void){
+  36   1              PCA0CPM1 |= PCA0CPM1_ECOM__ENABLED; // enable led PWM
+  37   1              P1MDOUT |= P1MDOUT_B0__PUSH_PULL;       // Set pushpull
+  38   1      }
+  39          
+  40          void enable_PWMout2(void){
+  41   1              PCA0CPM2 |=PCA0CPM2_ECOM__ENABLED; // enable led PWM
+  42   1              P1MDOUT |= P1MDOUT_B1__PUSH_PULL;       // Set pushpull
+  43   1      }
+  44          
+  45          
+  46          void setval_PWMout0(int16_t val){
+  47   1        IE_EA = 0;
+  48   1        pwmglob.set_out[0] = val;
+  49   1        pwmOut1_update = 1;
+  50   1        PCA0CPM0 |=PCA0CPM0_ECCF__BMASK;
+  51   1        PCA0CN0_CCF0=1; // force update
+  52   1        IE_EA = 1;
+C51 COMPILER V9.60.0.0   PWM                                                               08/28/2021 20:51:45 PAGE 2   
+
+  53   1      }
+  54          
+  55          void setval_PWMout1(int16_t val){
+  56   1              IE_EA = 0;
+  57   1              pwmglob.set_out[1] = val;
+  58   1              pwmOut1_update = 1;
+  59   1              PCA0CPM1 |=PCA0CPM1_ECCF__BMASK;
+  60   1              PCA0CN0_CCF1=1; // force update
+  61   1              IE_EA = 1;
+  62   1      }
+  63          
+  64          void setval_PWMout2(int16_t val){
+  65   1              IE_EA = 0;
+  66   1              pwmglob.set_out[2] = val;
+  67   1              pwmOut2_update = 1;
+  68   1              PCA0CPM2 |=PCA0CPM2_ECCF__BMASK;
+  69   1              PCA0CN0_CCF2=1; // force update
+  70   1              IE_EA = 1;
+  71   1      }
+  72          
+  73          /*
+  74          void setval_PWMout(int8_t ch, int16_t val){
+  75            IE_EA = 0;
+  76            pwmglob.set_out[ch] = val;
+  77            switch (ch){
+  78                case 0:
+  79                  pwmOut0_update = 1;
+  80                  PCA0CPM0 |=PCA0CPM0_ECCF__BMASK;
+  81                  PCA0CN0_CCF0=1; // force update
+  82                  break;
+  83                case 1:
+  84                  pwmOut1_update = 1;
+  85                  PCA0CPM1 |=PCA0CPM1_ECCF__BMASK;
+  86                  PCA0CN0_CCF1=1; // force update
+  87                  break;
+  88                case 2:
+  89                  pwmOut2_update = 1;
+  90                  PCA0CPM2 |=PCA0CPM2_ECCF__BMASK;
+  91                  PCA0CN0_CCF2=1; // force update
+  92                  break;
+  93            }
+  94            IE_EA = 1;
+  95          }
+  96          */
+  97          
+  98          void disable_PWMout0(void){
+  99   1        P0MDOUT &= !P0MDOUT_B7__BMASK;  // Set opendrain
+ 100   1        PCA0CPM1 |=PCA0CPM1_ECOM__DISABLED; // enable led PWM
+ 101   1        PIN_PWM0 = 0;
+ 102   1      }
+ 103          
+ 104          void disable_PWMout1(void){
+ 105   1              P1MDOUT &= !P1MDOUT_B0__BMASK;  // Set opendrain
+ 106   1              PCA0CPM1 |=PCA0CPM1_ECOM__DISABLED; // enable led PWM
+ 107   1              PIN_PWM1 = 0;
+ 108   1      }
+ 109          
+ 110          void disable_PWMout2(void){
+ 111   1              P1MDOUT &= !P1MDOUT_B1__BMASK;  // Set opendrain
+ 112   1              PCA0CPM2 |=PCA0CPM2_ECOM__DISABLED; // enable led PWM
+ 113   1              PIN_PWM2 = 0;
+ 114   1      }
+ 115          
+C51 COMPILER V9.60.0.0   PWM                                                               08/28/2021 20:51:45 PAGE 3   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     87    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,159 @@
+C51 COMPILER V9.60.0.0   PGM                                                               08/28/2021 20:40:38 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PGM
+OBJECT MODULE PLACED IN .\src\pgm.OBJ
+COMPILER INVOKED BY: c:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\src\Tennp\Git
+                    -\AutoWatering\Firmware\AutoWaterLight\src\pgm.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFUZZY(3) O
+                    -PTIMIZE(8,SPEED) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Devi
+                    -ce/shared/si8051Base;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Device/EFM8BB1/inc) PRINT(.\src\pgm.
+                    -lst) COND PAGEWIDTH(120) PAGELENGTH(65) OBJECT(.\src\pgm.OBJ)
+
+line level    source
+
+   1          //#pragma src
+   2          
+   3          #include <absacc.h>
+   4          #include "main.h"
+   5          #include "pgm.h"
+   6          #include "gen.h"
+   7          
+   8          volatile uint8_t FlashKey1, FlashKey2;
+   9          
+  10          uint8_t calculateCRCsettingsEE(void);
+  11          void erasePageEEflash(uint16_t addr);
+  12          void write_flash_byte (uint8_t source, uint8_t xdata * destination);
+  13          void write_flash_Word (uint16_t source, uint8_t xdata * destination);
+  14          
+  15          void storeSettingsEE(void){
+  16   1              uint8_t i, crc;
+  17   1              uint8_t *eeprom_ptr = eeprom_data;
+  18   1              uint8_t code *pflashwrite; // define empty pointer
+  19   1              pflashwrite = EE_DATA; // assign address to a pointer
+  20   1              //int16_t val1, val2;
+  21   1              // store to flash
+  22   1      #ifdef PREVENTFLASHWRITE
+                      flkey_clear
+              #else
+  25   1              flkey_prepare
+  26   1      #endif
+  27   1              erasePageEEflash(EE_DATA);
+  28   1              for(i=0;i<(sizeof(eeprom_t));i++){
+  29   2                      write_flash_byte(eeprom_ptr[i], (uint16_t)&pflashwrite[i]);
+  30   2              }
+  31   1              //write_flash_Word((uint16_t)&mAsetLED1, EE_OUT1VAL);
+  32   1              crc = calculateCRCsettingsEE();
+  33   1              write_flash_byte(crc , EE_CRC);
+  34   1              flkey_clear
+  35   1      }
+  36          
+  37          void defaultSettingsEE(void){
+  38   1              eeprom_data[0].p_wait = 120; // minutes
+  39   1              eeprom_data[0].p_run = 15; // seconds
+  40   1      }
+  41          
+  42          
+  43          void loadSettingsEE(void){
+  44   1              // first check crc
+  45   1              uint8_t i, crc_calc,crc_stored;
+  46   1              uint8_t *eeprom_ptr = eeprom_data;
+  47   1              uint8_t code *pflashread; // define empty pointer
+  48   1              pflashread = EE_DATA; // assign address to a pointer
+  49   1      
+  50   1              crc_calc = calculateCRCsettingsEE();
+  51   1              crc_stored = CBYTE[EE_CRC];
+  52   1              if(crc_calc != crc_stored){
+C51 COMPILER V9.60.0.0   PGM                                                               08/28/2021 20:40:38 PAGE 2   
+
+  53   2                      defaultSettingsEE();
+  54   2                      delay_ms(100); // wait until voltage stabilized as next we write to flash
+  55   2                      storeSettingsEE();
+  56   2              }
+  57   1              // read flash
+  58   1              for(i=0;i<(EE_CRC-EE_DATA);i++){
+  59   2                      eeprom_ptr[i]=pflashread[i];
+  60   2              }
+  61   1      }
+  62          
+  63          // calculate flash CRC
+  64          uint8_t calculateCRCsettingsEE(void){
+  65   1              uint8_t i, crc=0;
+  66   1              uint8_t code *pflashread; // define empty pointer
+  67   1              pflashread = EE_DATA; // assign address to a pointer
+  68   1      
+  69   1              for(i=0;i<(EE_CRC-EE_DATA);i++){
+  70   2                      crc+=pflashread[i];
+  71   2              }
+  72   1              return crc=~crc+1;
+  73   1      }
+  74          
+  75          
+  76          void enable_flash_write(void){
+  77   1              IE_EA = 0;                  // disable interrupts
+  78   1              //VDM0CN |= (VDM0CN_VDMLVL__HIGH); // Set voltage Monitor to High
+  79   1              PSCTL |= (PSCTL_PSWE__WRITE_ENABLED); // Set the PSWE bit
+  80   1              PSCTL &= ~(PSCTL_PSEE__ERASE_ENABLED); // Clear the PSEE bit
+  81   1              FLKEY = FlashKey1;            // FLASH lock and key sequence 1
+  82   1              FLKEY = FlashKey2;            // FLASH lock and key sequence 2
+  83   1      }
+  84          
+  85          void enable_flash_erase(void){
+  86   1              IE_EA = 0;                  // disable interrupts
+  87   1              //VDM0CN |= (VDM0CN_VDMLVL__HIGH); // Set voltage Monitor to High
+  88   1              PSCTL |= (PSCTL_PSEE__ERASE_ENABLED); // Set the PSEE bit
+  89   1              PSCTL |= (PSCTL_PSWE__WRITE_ENABLED); // Set the PSWE bit
+  90   1              FLKEY = FlashKey1;            // FLASH lock and key sequence 1
+  91   1              FLKEY = FlashKey2;            // FLASH lock and key sequence 2
+  92   1      }
+  93          
+  94          void disable_flash_write(void){
+  95   1              PSCTL &= ~(PSCTL_PSWE__WRITE_ENABLED); // Clear the PSWE bit
+  96   1              PSCTL &= ~(PSCTL_PSEE__ERASE_ENABLED); // Clear the PSEE bit
+  97   1              //VDM0CN &= ~(VDM0CN_VDMLVL__HIGH); // Set voltage monitor back to Low
+  98   1              IE_EA = 1;   // re-enable interrupts
+  99   1      }
+ 100          
+ 101          // store byte to address passed by value
+ 102          void write_flash_byte (uint8_t source, uint8_t xdata * destination){
+ 103   1              if(destination>=EE_DATA){
+ 104   2                      enable_flash_write();
+ 105   2      #ifndef PREVENTFLASHWRITE
+ 106   2                      *destination = source;  // Move the data to flash
+ 107   2      #else
+                              source=source; // dummy operation to prevent warning
+              #endif
+ 110   2                      disable_flash_write();
+ 111   2              }
+ 112   1      }
+ 113          
+ 114          void write_flash_Word (uint16_t source, uint8_t xdata * destination){
+ 115   1              write_flash_byte(source>>8, destination);
+C51 COMPILER V9.60.0.0   PGM                                                               08/28/2021 20:40:38 PAGE 3   
+
+ 116   1              write_flash_byte(source & 0xFF, destination+1);
+ 117   1      }
+ 118          
+ 119          void erasePageEEflash(uint16_t addr){
+ 120   1              uint8_t xdata * a = (uint8_t*)addr;
+ 121   1              enable_flash_erase();
+ 122   1              *a = 0;  // Move the data to flash
+ 123   1              disable_flash_write();
+ 124   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    325    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2      14
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

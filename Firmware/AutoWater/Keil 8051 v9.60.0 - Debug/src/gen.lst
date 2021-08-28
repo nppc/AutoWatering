@@ -1,0 +1,141 @@
+C51 COMPILER V9.60.0.0   GEN                                                               08/27/2021 21:40:10 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE GEN
+OBJECT MODULE PLACED IN .\src\gen.OBJ
+COMPILER INVOKED BY: c:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\src\Tennp\Git
+                    -\AutoWatering\Firmware\AutoWater\src\gen.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFUZZY(3) OPTIMI
+                    -ZE(8,SPEED) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Device/sh
+                    -ared/si8051Base;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Device/EFM8BB1/inc) PRINT(.\src\gen.lst) 
+                    -COND PAGEWIDTH(120) PAGELENGTH(65) OBJECT(.\src\gen.OBJ)
+
+line level    source
+
+   1          //#pragma src
+   2          #include "main.h"
+   3          #include "gen.h"
+   4          #include "SSD1306.h"
+   5          //#include "bitmaps.h"
+   6          
+   7          volatile uint16_t tmp_millis;
+   8          volatile bit delay_on;
+   9          volatile uint8_t scrolldelay;
+  10          
+  11          
+  12          void delay_ms(uint16_t ms_count)
+  13           {
+  14   1        tmp_millis = ms_count;
+  15   1        delay_on = 1;
+  16   1        while(delay_on);
+  17   1       }
+  18          
+  19          // round result to the nearest integer
+  20          uint16_t div32round(uint32_t d1, uint32_t d2){
+  21   1        return (d1 + (d2 / 2)) / d2;
+  22   1      }
+  23          
+  24          bit run_timers(void){
+  25   1              bit retval=0;
+  26   1              if(second_tick){
+  27   2                      second_tick=0;
+  28   2                      
+  29   2                      glob.screenSaver_s--;
+  30   2                      
+  31   2                      switch (glob.machinestate){
+  32   3                              case MACHINE_WAIT:
+  33   3                                      if(glob.p_wait_sub_s>0){
+  34   4                                              glob.p_wait_sub_s--;
+  35   4                                      }else{
+  36   4                                              glob.p_wait_sub_s = 60;
+  37   4                                              if(glob.p_wait_cntr_m>0) glob.p_wait_cntr_m--;
+  38   4                                              retval=1;
+  39   4                                      }
+  40   3                                      break;
+  41   3                              case MACHINE_RUN:
+  42   3                                      if(glob.p_run_cntr_s>0) glob.p_run_cntr_s--;
+  43   3                                      retval=1;
+  44   3                                      break;
+  45   3                      }
+  46   2              }
+  47   1              return retval;
+  48   1      }
+  49          
+  50          // format: XXm XXs
+  51          void show_time_s(uint16_t num){
+  52   1              int16_t tmp;
+C51 COMPILER V9.60.0.0   GEN                                                               08/27/2021 21:40:10 PAGE 2   
+
+  53   1              tmp = num;
+  54   1              ssd1306_printTimeM(22,0,tmp / 60);
+  55   1              tmp = tmp % 60;
+  56   1              ssd1306_printTimeS(64,0,tmp);
+  57   1      }
+  58          
+  59          // format: XXh XXm
+  60          void show_time_m(uint16_t num){
+  61   1              int16_t tmp;
+  62   1              tmp = num;
+  63   1              ssd1306_printTimeH(22,0,tmp / 60);
+  64   1              tmp = tmp % 60;
+  65   1              ssd1306_printTimeM(59,0,tmp);
+  66   1      }
+  67          
+  68          void scroll_image(void){
+  69   1              if(scrolldelay==0 && glob.machinestate==MACHINE_RUN){
+  70   2                      // time to scroll
+  71   2                      scrolldelay=70; // ms
+  72   2                      scroll_down(11, 2);
+  73   2                      ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
+  74   2              }
+  75   1      }
+  76          
+  77          
+  78          void configAdjustValue(CONFIG_STATE state){
+  79   1        uint8_t t;
+  80   1        switch (state){
+  81   2              case CONFIG_WAIT_H:
+  82   2                t = eeprom_data[0].p_wait % 60; // preserve minutes
+  83   2                eeprom_data[0].p_wait+=60;
+  84   2                if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
+  85   2                //configcounter_s = 10*3; // about 3 seconds
+  86   2                break;
+  87   2              case CONFIG_WAIT_M:
+  88   2                t = eeprom_data[0].p_wait / 60; // preserve hours
+  89   2                eeprom_data[0].p_wait++;
+  90   2                if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
+  91   2                //configcounter_s = 10*3; // about 3 seconds
+  92   2                break;
+  93   2              case CONFIG_RUN_M:
+  94   2                t = eeprom_data[0].p_run % 60; // preserve seconds
+  95   2                eeprom_data[0].p_run+=60;
+  96   2                if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
+  97   2                //configcounter_s = 10*3; // about 3 seconds
+  98   2                break;
+  99   2              case CONFIG_RUN_S:
+ 100   2                t = eeprom_data[0].p_run / 60; // preserve minutes
+ 101   2                eeprom_data[0].p_run++;
+ 102   2                if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
+ 103   2                //configcounter_s = 10*3; // about 3 seconds
+ 104   2                break;
+ 105   2        }
+ 106   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    523    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3      12
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.0.0   GEN                                                               08/27/2021 21:40:10 PAGE 3   
+
+   BIT SIZE         =      1       1
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

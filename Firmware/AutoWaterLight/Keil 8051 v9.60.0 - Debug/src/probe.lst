@@ -1,0 +1,97 @@
+C51 COMPILER V9.60.0.0   PROBE                                                             08/27/2021 21:40:35 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE PROBE
+OBJECT MODULE PLACED IN .\src\probe.OBJ
+COMPILER INVOKED BY: c:\SiliconLabs\SimplicityStudio\v5\developer\toolchains\keil_8051\9.60\BIN\C51.exe C:\src\Tennp\Git
+                    -\AutoWatering\Firmware\AutoWaterLight\src\probe.c OMF2 SMALL DEBUG OBJECTEXTEND ROM(LARGE) WARNINGLEVEL(2) FLOATFUZZY(3)
+                    - OPTIMIZE(8,SPEED) INTVECTOR(0X0000) INTPROMOTE INCDIR(C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//De
+                    -vice/shared/si8051Base;C:/SiliconLabs/SimplicityStudio/v5/developer/sdks/8051/v4.2.0//Device/EFM8BB1/inc) PRINT(.\src\pr
+                    -obe.lst) COND PAGEWIDTH(120) PAGELENGTH(65) OBJECT(.\src\probe.OBJ)
+
+line level    source
+
+   1          #include "probe.h"
+   2          #include "gen.h"
+   3          
+   4          int16_t GetProbeADC(void){
+   5   1        int16_t counter, adcval;
+   6   1        int32_t sum1, sum2;
+   7   1        ADC0MX = ADC0MX_ADC0MX__ADC0P7; // probe
+   8   1        sum1=0;
+   9   1        sum2=0;
+  10   1        adcval=0;
+  11   1        pinsPushPull();
+  12   1        PIN_1 = 1;
+  13   1        PIN_2 = 0;
+  14   1        ADC0CN0_ADINT = 0;  // reset ADC complete interrupt
+  15   1        ADC0CN0_ADBUSY = 1; // start ADC conversions
+  16   1        for(counter=0;counter<500;counter++){
+  17   2            while(ADC0CN0_ADINT==0); // wait for adc to complete
+  18   2            adcval = ADC0;
+  19   2            PIN_1 = !PIN_1;
+  20   2            PIN_2 = !PIN_2;
+  21   2            ADC0CN0_ADINT = 0;  // reset ADC complete interrupt
+  22   2            ADC0CN0_ADBUSY = 1; // start ADC conversions
+  23   2            sum1+=adcval;
+  24   2            while(ADC0CN0_ADINT==0); // wait for adc to complete
+  25   2            adcval = ADC0;
+  26   2            PIN_1 = !PIN_1;
+  27   2            PIN_2 = !PIN_2;
+  28   2            ADC0CN0_ADINT = 0;  // reset ADC complete interrupt
+  29   2            ADC0CN0_ADBUSY = 1; // start ADC conversions
+  30   2            sum2+=adcval;
+  31   2        }
+  32   1        pinsHighZ();
+  33   1        sum1=sum1/500;
+  34   1        sum2=4095-(sum2/500);
+  35   1      #ifdef DEBUGUART
+                    sendUART(sum1,0);
+                    prnUART(" ",0);
+                    sendUART(sum2,0);
+                    prnUART(" ",0);
+                    sendUART(sum1-(sum1-sum2)/2,1);
+              #endif
+  42   1        return sum1-(sum1-sum2)/2;
+  43   1      }
+  44          
+  45          int16_t convert2EC(int16_t adcval){
+  46   1        uint8_t i;
+  47   1        // check value for the range
+  48   1        if(adcval>=calib_data[0].ADCval && adcval<4000) return 0; // distilled water
+  49   1        if(adcval>=4000) return adcval; // probe in air
+  50   1        // find value in a table
+  51   1        for(i=0;i<(CALIBRATIONVALUES-1);i++){
+  52   2            if(adcval>calib_data[i+1].ADCval) break;
+C51 COMPILER V9.60.0.0   PROBE                                                             08/27/2021 21:40:35 PAGE 2   
+
+  53   2        }
+  54   1        // calculate the value from found range
+  55   1        // 100-(adcval-[lowerboundinrange])*256/divconst
+  56   1        if(i==(CALIBRATIONVALUES-1)){
+  57   2            // EC greather than 5
+  58   2            return (CALIBRATIONVALUES-1)*100+(calib_data[CALIBRATIONVALUES-1].ADCval-adcval);
+  59   2        }else{
+  60   2            // EC is in a range
+  61   2            return i*100+(100-div32round((uint32_t)(adcval-calib_data[i+1].ADCval) * 256,calib_data[i].divconst)
+             -);
+  62   2        }
+  63   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    479    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+   EDATA SIZE       =   ----    ----
+   HDATA SIZE       =   ----    ----
+   XDATA CONST SIZE =   ----    ----
+   FAR CONST SIZE   =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
