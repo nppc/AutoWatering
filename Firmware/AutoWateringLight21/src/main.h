@@ -37,6 +37,9 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 #define LEDSENSOR_CLOUD 2100 // ADC value
 #define LEDSENSOR_NIGHT 1800 // ADC value
 
+#define LIGHTPANELPWM_MAX 1000 // 10 bit PWM value
+#define LIGHTPANELPWM_MIN 0 // 10 bit PWM value
+
 // Structure for accessing 16bit number by 2 8 bit (back and forth)
 // u16 and u8[] sharing the same memory space
 // Usage:
@@ -63,7 +66,7 @@ typedef struct
 	uint8_t p_wait_sub_s; // seconds counter for wait period
 	uint16_t p_wait_cntr_m, p_run_cntr_s; // timer counters (m - minutes, s - seconds)
 	int16_t screenSaver_s; // (signed) start screen saver mode after some time of inactivity
-  int16_t Vlight, TmpBrd; // Vbat is calculated from DAC value
+  int16_t Vlight, TmpBrd;
   DAYPHASE dayphase; // phase of the day
 #ifdef DEBUGUART
   uint16_t cntr_uart;
@@ -83,7 +86,7 @@ typedef struct
   int16_t cur_out[3];
 } pwmglob_t;
 
-extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update;
+extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
 extern pwmglob_t pwmglob;
 
 extern eeprom_t xdata eeprom_data[];

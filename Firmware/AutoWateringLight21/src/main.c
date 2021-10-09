@@ -22,7 +22,7 @@
 volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
-volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update;
+volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
 volatile pwmglob_t pwmglob;
 
 volatile bit second_tick;
@@ -65,26 +65,15 @@ int main(void) {
 
   enter_DefaultMode_from_RESET();
 
-  //PCA0PWM |= (PCA0PWM_ARSEL__AUTORELOAD + PCA0PWM_COVF__OVERFLOW);
-
-  enable_PWMout0();
-  enable_PWMout1();
-  enable_PWMout2();
-  setval_PWMout0(300);
-  setval_PWMout1(500);
-  setval_PWMout2(1000);
-//  setval_PWMout(0,123);
-//  setval_PWMout(1,145);
-//  setval_PWMout(2,120);
-//  disable_PWMout0();
-//  disable_PWMout1();
-//  disable_PWMout2();
+  setval_PWMout(0,300);
+  setval_PWMout(1,500);
+  setval_PWMout(2,1000);
 
   buttonstate = BUT_NOTPRESSED;
   glob.machinestate = MACHINE_WAIT;
   glob.p_wait_sub_s = 60;
   glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
-  glob.dayphase = DAYPHASE_SUN; // Set sunny day at the start to prevent turning light on after boot.
+  glob.dayphase = DAYPHASE_NIGHT; // Set night at the start to prevent turning light on after boot.
 
 #ifdef DEBUGUART
 	prnUART("START",1);
@@ -121,14 +110,14 @@ int main(void) {
 	while(1){
 	  uint8_t but;
 
-	  //processADC();
-
+#ifndef DEBUG
+	  processADC();
+#else
 	  if(processADC()){
 	      ssd1306_printNumberDebug(0,2,glob.TmpBrd);
         ssd1306_printNumberDebug(64,2,glob.Vlight);
-        //ssd1306_printBitmap(108, 0, 19, 2, dayphase_bitmap[glob.dayphase]);
 	  }
-
+#endif
 
 	  glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
 
@@ -157,6 +146,14 @@ int main(void) {
     }
 		
     but = getButtonState();
+#ifdef DEBUG
+    // test LIGHT ON/OFF
+    if(but==BUT_PRESSED){
+        if(pwmglob.set_out[0]==0) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
+        delay_ms(100);
+        buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
+    }
+#endif
     // check button
   if(glob.screenSaver_s<=0 && but==BUT_PRESSED){
     // wake up from screen saver on button short press
@@ -249,7 +246,7 @@ int main(void) {
             PIN_PUMP = 0; //stop pump
             delay_ms(200);
             glob.machinestate = MACHINE_WAIT;
-            glob.p_wait_cntr_m = eeprom_data[0].p_wait;
+            glob.p_wait_cntr_m = getWaitValue();
             glob.p_wait_sub_s = 60;
             ssd1306_clear_display();
             glob.screenSaver_s = SSAVERDELAY;

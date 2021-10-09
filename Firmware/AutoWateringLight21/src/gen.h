@@ -19,5 +19,6 @@ void scroll_image(void);
 void updateDataOnScreen(void);
 void configAdjustValue(CONFIG_STATE state);
 DAYPHASE getDayPhase(void);
+uint16_t getWaitValue(void);
 
 #endif /* GEN_H_ */

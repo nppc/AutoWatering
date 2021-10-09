@@ -129,5 +129,13 @@ DAYPHASE getDayPhase(void){
   if(glob.Vlight<=LEDSENSOR_CLOUD && glob.dayphase==DAYPHASE_SUN) return DAYPHASE_CLOUD;
   if(glob.Vlight>=LEDSENSOR_CLOUD && glob.dayphase==DAYPHASE_NIGHT) return DAYPHASE_CLOUD;
   if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_CLOUD) return DAYPHASE_SUN;
+  if(glob.Vlight<(LEDSENSOR_SUN-100) && glob.dayphase==DAYPHASE_SUN) return DAYPHASE_CLOUD;  // if sun behind the clouds - turn light on
   return glob.dayphase;
+}
+
+uint16_t getWaitValue(void){
+  uint16_t w = eeprom_data[0].p_wait;
+  if(glob.dayphase==DAYPHASE_NIGHT) return w + w/2; // At night make pause 50% longer
+  if(glob.dayphase==DAYPHASE_SUN) return w/2; // When sun, make pause 50% shorter
+  return w;
 }
