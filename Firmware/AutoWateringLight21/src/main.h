@@ -38,6 +38,7 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 
 #define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value
 #define LIGHTPANELPWM_MIN 2 // 10 bit PWM value
+#define LIGHTPANELSPEED 5	// Adjust Light Panel PWM every N ms.
 
 // Structure for accessing 16bit number by 2 8 bit (back and forth)
 // u16 and u8[] sharing the same memory space
@@ -75,7 +76,9 @@ typedef struct
 
 typedef struct
 {
-  uint16_t p_wait; // pump not working (minutes)
+  uint16_t p_wait_night; // pump not working (minutes)
+  uint16_t p_wait_cloud; // pump not working (minutes)
+  uint16_t p_wait_sun; // pump not working (minutes)
   uint16_t p_run;  // pump is working (seconds)
   uint16_t daylight; // daylight interval (18h max in seconds)
 } eeprom_t;
@@ -85,9 +88,10 @@ typedef struct
 {
   int16_t set_out[3];
   int16_t cur_out[3];
+  uint8_t pwmchangecntr;
 } pwmglob_t;
 
-extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
+extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
 extern bit daylight; // daylight or night mode
 extern pwmglob_t pwmglob;
 

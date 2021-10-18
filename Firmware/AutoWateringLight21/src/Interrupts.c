@@ -62,7 +62,8 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
     }
 
     // smooth pwm adjust (every 2ms)
-    if(pwmchangecntr){
+    if(pwmglob.pwmchangecntr==0){
+	  pwmglob.pwmchangecntr = LIGHTPANELSPEED;
       if(pwmglob.cur_out[0]<pwmglob.set_out[0]){pwmglob.cur_out[0]++;pwmOut0_update = 1;} // adjust
       else if(pwmglob.cur_out[0]>pwmglob.set_out[0]){pwmglob.cur_out[0]--;pwmOut0_update = 1;} // adjust
       if(pwmglob.cur_out[1]<pwmglob.set_out[1]){pwmglob.cur_out[1]++;pwmOut1_update = 1;} // adjust
@@ -145,8 +146,10 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
           SFRPAGE=sfr_temp;
         }
       }
-    }
-    pwmchangecntr = !pwmchangecntr;
+    }else{
+		pwmglob.pwmchangecntr--;
+	}
+
 
 #ifdef SCROLLING
   if(scrolldelay>0)scrolldelay--;

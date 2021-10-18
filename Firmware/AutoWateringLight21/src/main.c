@@ -22,7 +22,7 @@
 volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
-volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
+volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
 volatile bit daylight; // daylight or night mode
 volatile pwmglob_t pwmglob;
 
@@ -116,11 +116,14 @@ int main(void) {
 #ifndef DEBUG
 	  processADC();
 #else
+	  processADC();
+/*
 	  if(processADC()){
 	      ssd1306_printNumberDebug(0,2,pwmglob.set_out[0]);
 	      //ssd1306_printNumberDebug(0,2,glob.TmpBrd);
         //ssd1306_printNumberDebug(64,2,glob.Vlight);
 	  }
+*/
 #endif
 
 	  glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
@@ -266,7 +269,7 @@ int main(void) {
             configflashcntr = 8; // 800ms
           }else if(configflashcntr<5){
             ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(eeprom_data[0].p_wait);
+            show_time_m(eeprom_data[0].p_wait_cloud);
             delay_ms(10);
           }
         }else if(glob.configstate == CONFIG_RUN){
@@ -293,11 +296,11 @@ int main(void) {
 		        configcounter_s = 10*3; // about 3 seconds
 		    }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(eeprom_data[0].p_wait);
+          show_time_m(eeprom_data[0].p_wait_cloud);
           ssd1306_printBitmapClear(22, 0, 36, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){
-          ssd1306_printTimeH(22,0,eeprom_data[0].p_wait / 60);
+          ssd1306_printTimeH(22,0,eeprom_data[0].p_wait_cloud / 60);
           delay_ms(10);
         }
         break;
@@ -324,11 +327,11 @@ int main(void) {
             RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
         }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(eeprom_data[0].p_wait);
+          show_time_m(eeprom_data[0].p_wait_cloud);
           ssd1306_printBitmapClear(59, 0, 36, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){
-          ssd1306_printTimeM(59,0,eeprom_data[0].p_wait % 60);
+          ssd1306_printTimeM(59,0,eeprom_data[0].p_wait_cloud % 60);
           delay_ms(10);
         }
         break;

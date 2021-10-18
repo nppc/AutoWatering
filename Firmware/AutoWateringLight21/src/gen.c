@@ -101,15 +101,15 @@ void configAdjustValue(CONFIG_STATE state){
   uint8_t t;
   switch (state){
 	case CONFIG_WAIT_H:
-	  t = eeprom_data[0].p_wait % 60; // preserve minutes
-	  eeprom_data[0].p_wait+=60;
-	  if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
+	  t = eeprom_data[0].p_wait_cloud % 60; // preserve minutes
+	  eeprom_data[0].p_wait_cloud+=60;
+	  if(eeprom_data[0].p_wait_cloud>(99*60+59)) eeprom_data[0].p_wait_cloud = t;
 	  //configcounter_s = 10*3; // about 3 seconds
 	  break;
 	case CONFIG_WAIT_M:
-	  t = eeprom_data[0].p_wait / 60; // preserve hours
-	  eeprom_data[0].p_wait++;
-	  if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
+	  t = eeprom_data[0].p_wait_cloud / 60; // preserve hours
+	  eeprom_data[0].p_wait_cloud++;
+	  if((eeprom_data[0].p_wait_cloud / 60)>t) eeprom_data[0].p_wait_cloud = t*60;
 	  //configcounter_s = 10*3; // about 3 seconds
 	  break;
 	case CONFIG_RUN_M:
@@ -138,10 +138,9 @@ DAYPHASE getDayPhase(void){
 }
 
 uint16_t getWaitValue(void){
-  uint16_t w = eeprom_data[0].p_wait;
-  if(glob.dayphase==DAYPHASE_NIGHT) return w + w/2; // At night make pause 50% longer
-  if(glob.dayphase==DAYPHASE_SUN) return w/2; // When sun, make pause 50% shorter
-  return w;
+  if(glob.dayphase==DAYPHASE_NIGHT) return eeprom_data[0].p_wait_night; 
+  if(glob.dayphase==DAYPHASE_SUN) return eeprom_data[0].p_wait_sun; 
+  return eeprom_data[0].p_wait_cloud;
 }
 
 // if daylight counter is 0 then we can turn Lights on or off according to dayphase
