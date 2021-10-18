@@ -1,4 +1,3 @@
-
 #ifndef MAIN_H_
 #define MAIN_H_
 
@@ -37,8 +36,8 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 #define LEDSENSOR_CLOUD 2100 // ADC value
 #define LEDSENSOR_NIGHT 1800 // ADC value
 
-#define LIGHTPANELPWM_MAX 1000 // 10 bit PWM value
-#define LIGHTPANELPWM_MIN 0 // 10 bit PWM value
+#define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value
+#define LIGHTPANELPWM_MIN 2 // 10 bit PWM value
 
 // Structure for accessing 16bit number by 2 8 bit (back and forth)
 // u16 and u8[] sharing the same memory space
@@ -65,6 +64,7 @@ typedef struct
 	CONFIG_STATE configstate; // different states during config mode
 	uint8_t p_wait_sub_s; // seconds counter for wait period
 	uint16_t p_wait_cntr_m, p_run_cntr_s; // timer counters (m - minutes, s - seconds)
+	uint16_t daylight_cntr_s; // timer counter for daylight (max 18h in seconds) and also a night
 	int16_t screenSaver_s; // (signed) start screen saver mode after some time of inactivity
   int16_t Vlight, TmpBrd;
   DAYPHASE dayphase; // phase of the day
@@ -77,6 +77,7 @@ typedef struct
 {
   uint16_t p_wait; // pump not working (minutes)
   uint16_t p_run;  // pump is working (seconds)
+  uint16_t daylight; // daylight interval (18h max in seconds)
 } eeprom_t;
 
 
@@ -87,6 +88,7 @@ typedef struct
 } pwmglob_t;
 
 extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
+extern bit daylight; // daylight or night mode
 extern pwmglob_t pwmglob;
 
 extern eeprom_t xdata eeprom_data[];

@@ -73,9 +73,12 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
       if(pwmOut0_update){
         // disable output if needed
         if(pwmglob.cur_out[0]==LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           P0MDOUT &= ~P0MDOUT_B7__BMASK;  // Set opendrain
           PCA0CPM0 &= ~PCA0CPM0_ECOM__BMASK; // disable led PWM
           PIN_PWM0 = 0;
+          SFRPAGE=sfr_temp;
         }
         PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
         tmp.u16 = pwmglob.cur_out[0];
@@ -85,16 +88,22 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
         pwmOut0_update = 0;
         // enable output if needed
         if(pwmglob.cur_out[0]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[0]>LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           PCA0CPM0 |= PCA0CPM0_ECOM__ENABLED; // enable led PWM
           P0MDOUT |= P0MDOUT_B7__PUSH_PULL; // Set pushpull
+          SFRPAGE=sfr_temp;
         }
       }
 
       if(pwmOut1_update){
         if(pwmglob.cur_out[1]==LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           P1MDOUT &= ~P1MDOUT_B0__BMASK;  // Set opendrain
           PCA0CPM1 &= ~PCA0CPM1_ECOM__BMASK; // enable led PWM
           PIN_PWM1 = 0;
+          SFRPAGE=sfr_temp;
         }
         PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
         tmp.u16 = pwmglob.cur_out[1];
@@ -104,16 +113,22 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
         pwmOut1_update = 0;
         // enable output if needed
         if(pwmglob.cur_out[1]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[1]>LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           PCA0CPM1 |= PCA0CPM1_ECOM__ENABLED; // enable led PWM
           P1MDOUT |= P1MDOUT_B0__PUSH_PULL; // Set pushpull
+          SFRPAGE=sfr_temp;
         }
       }
 
       if(pwmOut2_update){
         if(pwmglob.cur_out[2]==LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           P1MDOUT &= ~P1MDOUT_B1__BMASK;  // Set opendrain
           PCA0CPM2 &= ~PCA0CPM2_ECOM__BMASK; // enable led PWM
           PIN_PWM2 = 0;
+          SFRPAGE=sfr_temp;
         }
         PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
         tmp.u16 = pwmglob.cur_out[2];
@@ -123,8 +138,11 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
         pwmOut2_update = 0;
         // enable output if needed
         if(pwmglob.cur_out[2]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[2]>LIGHTPANELPWM_MIN){
+          uint8_t sfr_temp = SFRPAGE;
+          SFRPAGE=0;
           PCA0CPM2 |=PCA0CPM2_ECOM__ENABLED; // enable led PWM
           P1MDOUT |= P1MDOUT_B1__PUSH_PULL; // Set pushpull
+          SFRPAGE=sfr_temp;
         }
       }
     }

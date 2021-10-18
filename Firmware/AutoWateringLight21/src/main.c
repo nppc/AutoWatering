@@ -23,6 +23,7 @@ volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
 volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update,pwmchangecntr;
+volatile bit daylight; // daylight or night mode
 volatile pwmglob_t pwmglob;
 
 volatile bit second_tick;
@@ -65,15 +66,17 @@ int main(void) {
 
   enter_DefaultMode_from_RESET();
 
-  setval_PWMout(0,300);
-  setval_PWMout(1,500);
-  setval_PWMout(2,1000);
+  setval_PWMout(0,LIGHTPANELPWM_MIN);
+  setval_PWMout(1,LIGHTPANELPWM_MIN);
+  setval_PWMout(2,LIGHTPANELPWM_MIN);
 
   buttonstate = BUT_NOTPRESSED;
   glob.machinestate = MACHINE_WAIT;
   glob.p_wait_sub_s = 60;
   glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
   glob.dayphase = DAYPHASE_NIGHT; // Set night at the start to prevent turning light on after boot.
+  glob.daylight_cntr_s = 0; // We start in night mode, but ready to go to daylight mode anytime. So, counter is 0.
+  daylight = 0; // We start in night mode
 
 #ifdef DEBUGUART
 	prnUART("START",1);
@@ -114,8 +117,9 @@ int main(void) {
 	  processADC();
 #else
 	  if(processADC()){
-	      ssd1306_printNumberDebug(0,2,glob.TmpBrd);
-        ssd1306_printNumberDebug(64,2,glob.Vlight);
+	      ssd1306_printNumberDebug(0,2,pwmglob.set_out[0]);
+	      //ssd1306_printNumberDebug(0,2,glob.TmpBrd);
+        //ssd1306_printNumberDebug(64,2,glob.Vlight);
 	  }
 #endif
 
@@ -149,8 +153,8 @@ int main(void) {
 #ifdef DEBUG
     // test LIGHT ON/OFF
     if(but==BUT_PRESSED){
-        if(pwmglob.set_out[0]==0) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
-        delay_ms(100);
+        if(pwmglob.set_out[0]==LIGHTPANELPWM_MIN) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
+        delay_ms(200);
         buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
     }
 #endif

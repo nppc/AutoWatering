@@ -29,6 +29,10 @@ bit run_timers(void){
 		
 		glob.screenSaver_s--;
 		
+    // advance daylight counter
+    if(glob.daylight_cntr_s>0) glob.daylight_cntr_s--;
+
+
 		// read LED light every 20s
 		if(adcglob.led_read_s>0){
 		    adcglob.led_read_s--;
@@ -138,4 +142,27 @@ uint16_t getWaitValue(void){
   if(glob.dayphase==DAYPHASE_NIGHT) return w + w/2; // At night make pause 50% longer
   if(glob.dayphase==DAYPHASE_SUN) return w/2; // When sun, make pause 50% shorter
   return w;
+}
+
+// if daylight counter is 0 then we can turn Lights on or off according to dayphase
+// if sunny, then Lights should be off
+//TODO
+void LightsOnOff(void){
+  bit l_on = 0;
+  // first check sunny day only while daylight
+  if(daylight){
+      if(glob.dayphase==DAYPHASE_CLOUD) l_on = 1;
+  }
+}
+
+// switch to daylight mode if counter is 0 or there is cloudy or sunny weather longer than 1 minute
+//TODO
+void setDaylight(void){
+
+  if(glob.daylight_cntr_s==0){
+      daylight = !daylight;
+  }
+
+
+  glob.daylight_cntr_s = eeprom_data[0].daylight;
 }
