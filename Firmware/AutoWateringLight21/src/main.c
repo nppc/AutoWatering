@@ -51,6 +51,9 @@ void updateDataOnScreen(void){
     case MACHINE_WAIT:
       ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
       show_time_m(glob.p_wait_cntr_m);
+#ifdef DEBUG
+      ssd1306_printNumberDebug(64,2,glob.Vlight);
+#endif
       break;
     case MACHINE_RUN:
       show_time_s(glob.p_run_cntr_s);
@@ -90,7 +93,7 @@ int main(void) {
   loadSettingsEE();
 
 
-  glob.p_wait_cntr_m = eeprom_data[0].p_wait;
+  glob.p_wait_cntr_m = eeprom_data[0].p_wait_cloud;
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
   //glob.p_wait_cntr_m = 20; // debug
@@ -108,6 +111,8 @@ int main(void) {
 #ifdef SCROLLING
   scroll_init(11, 2, waterrunning_bitmap); // initialize once, as we scroll only one image
 #endif
+
+  setval_PWMout(0,LIGHTPANELPWM_MAX); //DEBUG
 
 
 	while(1){
@@ -155,11 +160,11 @@ int main(void) {
     but = getButtonState();
 #ifdef DEBUG
     // test LIGHT ON/OFF
-    if(but==BUT_PRESSED){
-        if(pwmglob.set_out[0]==LIGHTPANELPWM_MIN) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
-        delay_ms(200);
-        buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
-    }
+//    if(but==BUT_PRESSED){
+//        if(pwmglob.set_out[0]==LIGHTPANELPWM_MIN) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
+//        delay_ms(200);
+//        buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
+//    }
 #endif
     // check button
   if(glob.screenSaver_s<=0 && but==BUT_PRESSED){
