@@ -72,7 +72,7 @@ bit processADC(void){
       adcglob.CH_current = V_LIGHT;
       ADC0MX = ADC0MX_ADC0MX__ADC0P11; // LED for light measuring
       adcglob.samples_count=LED_ADC_SAMPLES-1; // count is 0 based (1 means 2 samples)
-      delay_ms(70); // this minimum 50ms delay is needed before reading LED voltage to get accurate value.
+      //delay_ms(70); // this minimum 50ms delay is needed before reading LED voltage to get accurate value.
       ADC_readLED = 0;
     }else{
         adcglob.CH_current = CH0_ADC;
@@ -83,7 +83,11 @@ bit processADC(void){
     // for ADC channels we need only averaging
     switch (tmpCh) {
       case V_LIGHT: // battery charge control
-        adcval = Adc_data[0];
+        // Lets sum...
+        for(i=0;i<LED_ADC_SAMPLES;i++){
+          sum += (uint16_t)Adc_data[i];
+        }
+        adcval = sum / LED_ADC_SAMPLES; // average
         glob.Vlight = adcval;
         break;
       case TMP_BRD: // board temperature control

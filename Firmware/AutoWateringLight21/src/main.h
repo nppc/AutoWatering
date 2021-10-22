@@ -25,7 +25,7 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 
 #define ADCRESOLUTIONMAXVALUE 4092
 #define ADC_SAMPLES 64
-#define LED_ADC_SAMPLES 1 // ADC samples for calculating average
+#define LED_ADC_SAMPLES 8 // ADC samples for calculating average
 #define TMPR_SAMPLES 8  // ADC samples for calculating average
 
 #define TEMPERATUREMAX 60 //60 // if higher - turn off led light

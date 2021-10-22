@@ -38,7 +38,7 @@ bit run_timers(void){
 		    adcglob.led_read_s--;
 		}else{
 		    ADC_readLED = 1;
-		    adcglob.led_read_s = 20; //seconds to wait
+		    adcglob.led_read_s = 2; //2 seconds to wait
         retval=1;
 		}
 
