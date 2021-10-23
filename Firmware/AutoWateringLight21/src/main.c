@@ -47,17 +47,18 @@ void SiLabs_Startup(void) {
 
 void updateDataOnScreen(void){
   ssd1306_printBitmap(109, 0, 19, 2, dayphase_bitmap[glob.dayphase]);
+  //show_time_m(1,glob.daylight_cntr_s/60);
+  ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s / 10);
   switch (glob.machinestate){
     case MACHINE_WAIT:
       ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-      show_time_m(glob.p_wait_cntr_m);
+      show_time_m(0,glob.p_wait_cntr_m);
 #ifdef DEBUG
       ssd1306_printNumberDebug(64,2,glob.Vlight);
-	  ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s);
 #endif
       break;
     case MACHINE_RUN:
-      show_time_s(glob.p_run_cntr_s);
+      show_time_s(0,glob.p_run_cntr_s);
       break;
   }
 }
@@ -253,7 +254,7 @@ int main(void) {
             glob.p_run_cntr_s = eeprom_data[0].p_run;
             ssd1306_clear_display();
             glob.screenSaver_s = SSAVERDELAY;
-            show_time_s(glob.p_run_cntr_s);
+            show_time_s(0, glob.p_run_cntr_s);
         }
         break;
       case MACHINE_RUN:
@@ -266,7 +267,7 @@ int main(void) {
             ssd1306_clear_display();
             glob.screenSaver_s = SSAVERDELAY;
             ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(glob.p_wait_cntr_m);
+            show_time_m(0, glob.p_wait_cntr_m);
         }
         break;
       case MACHINE_CONFIG:
@@ -277,7 +278,7 @@ int main(void) {
             configflashcntr = 8; // 800ms
           }else if(configflashcntr<5){
             ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(eeprom_data[0].p_wait_cloud);
+            show_time_m(0, eeprom_data[0].p_wait_cloud);
             delay_ms(10);
           }
         }else if(glob.configstate == CONFIG_RUN){
@@ -287,7 +288,7 @@ int main(void) {
             configflashcntr = 8; // 800ms
           }else if(configflashcntr<5){
             ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-            show_time_s(eeprom_data[0].p_run);
+            show_time_s(0, eeprom_data[0].p_run);
             delay_ms(10);
           }
         }
@@ -304,7 +305,7 @@ int main(void) {
 		        configcounter_s = 10*3; // about 3 seconds
 		    }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(eeprom_data[0].p_wait_cloud);
+          show_time_m(0, eeprom_data[0].p_wait_cloud);
           ssd1306_printBitmapClear(22, 0, 36, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){
@@ -320,7 +321,7 @@ int main(void) {
             configcounter_s = 10*3; // about 3 seconds
         }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-          show_time_s(eeprom_data[0].p_run);
+          show_time_s(0, eeprom_data[0].p_run);
           ssd1306_printBitmapClear(22, 0, 41, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){
@@ -335,7 +336,7 @@ int main(void) {
             RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
         }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(eeprom_data[0].p_wait_cloud);
+          show_time_m(0, eeprom_data[0].p_wait_cloud);
           ssd1306_printBitmapClear(59, 0, 36, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){
@@ -349,7 +350,7 @@ int main(void) {
             RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
         }else if(configflashcntr==0){
           ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-          show_time_s(eeprom_data[0].p_run);
+          show_time_s(0, eeprom_data[0].p_run);
           ssd1306_printBitmapClear(64, 0, 31, 2);
           configflashcntr = 8; // 800ms
         }else if(configflashcntr<5){

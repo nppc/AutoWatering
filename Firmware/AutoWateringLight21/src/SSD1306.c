@@ -329,7 +329,7 @@ void ssd1306_printTimeS(uint8_t x, uint8_t y, uint8_t num){
   }
   // now print to LCD
   // we print 2 digits with h
-  for(tmp=0;tmp<SSD1306_PAGES;tmp++){
+  for(tmp=0;tmp<NUMBER_HEIGHT;tmp++){
     setCol(x); // set the position
     setRow(tmp+y);
     // first digit
@@ -339,7 +339,7 @@ void ssd1306_printTimeS(uint8_t x, uint8_t y, uint8_t num){
     // print second digit
     ssd1306_printDigitLine(tmp,a[1]);
     I2C_Write(0);
-    // print h
+    // print s
     for(i=0;i<5;i++){
       I2C_Write(time_s_bitmap[i+tmp*5]);
     }

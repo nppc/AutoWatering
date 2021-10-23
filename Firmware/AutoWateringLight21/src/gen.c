@@ -2,6 +2,7 @@
 #include "main.h"
 #include "gen.h"
 #include "adc.h"
+#include "pwm.h"
 #include "SSD1306.h"
 //#include "bitmaps.h"
 
@@ -40,7 +41,7 @@ bit run_timers(void){
 		if(adcglob.led_read_s>0){
 		    adcglob.led_read_s--;
 		}else{
-		    ADC_readLED = 1;
+		    ADC_readLight = 1;
 		    adcglob.led_read_s = 2; //2 seconds to wait
         retval=1;
 		}
@@ -73,21 +74,21 @@ bit run_timers(void){
 }
 
 // format: XXm XXs
-void show_time_s(uint16_t num){
+void show_time_s(uint8_t row, uint16_t num){
 	int16_t tmp;
 	tmp = num;
-	ssd1306_printTimeM(22,0,tmp / 60);
+	ssd1306_printTimeM(22,row,tmp / 60);
 	tmp = tmp % 60;
-	ssd1306_printTimeS(64,0,tmp);
+	ssd1306_printTimeS(64,row,tmp);
 }
 
 // format: XXh XXm
-void show_time_m(uint16_t num){
+void show_time_m(uint8_t row, uint16_t num){
 	int16_t tmp;
 	tmp = num;
-	ssd1306_printTimeH(22,0,tmp / 60);
+	ssd1306_printTimeH(22,row,tmp / 60);
 	tmp = tmp % 60;
-	ssd1306_printTimeM(59,0,tmp);
+	ssd1306_printTimeM(59,row,tmp);
 }
 
 void scroll_image(void){
@@ -135,10 +136,10 @@ DAYPHASE getDayPhase(void){
   DAYPHASE newdayphase = glob.dayphase;
   
   if(glob.Vlight<=LEDSENSOR_NIGHT) newdayphase = DAYPHASE_NIGHT;
-  else if(glob.Vlight<=LEDSENSOR_CLOUD && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
-  else if(glob.Vlight>=LEDSENSOR_CLOUD && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
+  else if(glob.Vlight<LEDSENSOR_SUN && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
+  else if(glob.Vlight>LEDSENSOR_NIGHT && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
   else if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_CLOUD) newdayphase = DAYPHASE_SUN;
-  else if(glob.Vlight<(LEDSENSOR_SUN-100) && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
+  else if(glob.Vlight<(LEDSENSOR_SUN) && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
   
   // start timer if dayphase was changed
   if(glob.dayphase!=newdayphase) glob.dayphase_cntr_s = 0; // counter will increment
@@ -157,12 +158,14 @@ uint16_t getWaitValue(void){
 // also turn lights off is daylight counter is expired, but wthere is still not dark outside.
 void setLightsOnOff(void){
   bit l_on = 0;
+  if(glob.dayphase_cntr_s < 60) return; // do nothing if dayphase is not stabilized
+
   if(daylight && glob.daylight_cntr_s>0){
       if(glob.dayphase==DAYPHASE_CLOUD) l_on = 1;
   }
   
-  if(l_on && pwmglob.set_out[0] == LIGHTPANELPWM_MIN)) setval_PWMout(0,LIGHTPANELPWM_MAX); // turn lights on
-  else if(l_on==0 && pwmglob.set_out[0] == LIGHTPANELPWM_MAX) setval_PWMout(0,LIGHTPANELPWM_MIN); // turn lights off 
+  if(l_on && pwmglob.set_out[0] == LIGHTPANELPWM_MIN) setval_PWMout(0,LIGHTPANELPWM_MAX); // turn lights on
+  else if(l_on==0 && pwmglob.set_out[0] == LIGHTPANELPWM_MAX) setval_PWMout(0,LIGHTPANELPWM_MIN); // turn lights off
 }
 
 // switch to daylight mode if counter is 0 or there is cloudy or sunny weather longer than 1 minute

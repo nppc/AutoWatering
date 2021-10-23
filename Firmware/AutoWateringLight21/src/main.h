@@ -13,7 +13,7 @@
 SI_SBIT(SDA_PIN, SFR_P0, 1);
 SI_SBIT(SCL_PIN, SFR_P0, 2);
 SI_SBIT(PIN_PUMP, SFR_P1, 2); //PUMP mosfet
-//SI_SBIT(LED_PIN, SFR_P1, 3);
+//SI_SBIT(LIGHTSNSR_PIN, SFR_P1, 3);
 SI_SBIT(PIN_SERVOPWR, SFR_P1, 4); //Servo power mosfet
 SI_SBIT(PIN_PWM0, SFR_P0, 7);
 SI_SBIT(PIN_PWM1, SFR_P1, 0);
@@ -32,8 +32,8 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 #define TEMPERATUREADJUST 2 // Manual adjust due to inaccuracy of the sensor
 
 // Values for sun/cloud/night LED sensor readings
-#define LEDSENSOR_SUN 850 // ADC value
-#define LEDSENSOR_CLOUD 750 // ADC value
+#define LEDSENSOR_SUN 770 // ADC value
+#define LEDSENSOR_CLOUD 720 // ADC value
 #define LEDSENSOR_NIGHT 120 // ADC value
 
 #define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value

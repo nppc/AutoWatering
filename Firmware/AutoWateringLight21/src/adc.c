@@ -73,7 +73,7 @@ bit processADC(void){
       ADC0MX = ADC0MX_ADC0MX__ADC0P11; // LED for light measuring
       adcglob.samples_count=LED_ADC_SAMPLES-1; // count is 0 based (1 means 2 samples)
       //delay_ms(70); // this minimum 50ms delay is needed before reading LED voltage to get accurate value.
-      ADC_readLED = 0;
+      ADC_readLight = 0;
     }else{
         adcglob.CH_current = CH0_ADC;
         ADC0MX = ADC0MX_ADC0MX__ADC0P4; // ANA0
