@@ -39,7 +39,8 @@ void defaultSettingsEE(void){
 	eeprom_data[0].p_wait_cloud = 30; // minutes
 	eeprom_data[0].p_wait_sun = 10; // minutes
 	eeprom_data[0].p_run = 15; // seconds
-	eeprom_data[0].daylight = 10 * 3600; // 10h in seconds
+	eeprom_data[0].daylight = 12 * 3600; // 12h in seconds
+	eeprom_data[0].night = 10 * 3600; // 10h in seconds (// 22h - daylight time. Night should be at least 4h)
 }
 
 

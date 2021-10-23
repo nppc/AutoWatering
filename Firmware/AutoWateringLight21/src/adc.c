@@ -8,7 +8,7 @@
 
 volatile int16_t xdata Adc_data[ADC_SAMPLES];
 volatile adcglob_t adcglob;
-volatile bit ADC_readTemp, ADC_readLED, ADC_buffer_ready; // ADC_buffer_ready - indicates when new ADC readings are ready
+volatile bit ADC_readTemp, ADC_readLight, ADC_buffer_ready; // ADC_buffer_ready - indicates when new ADC readings are ready
 
 void initADC(void){
   int16_t tmp;
@@ -68,7 +68,7 @@ bit processADC(void){
       ADC0MX = ADC0MX_ADC0MX__TEMP;
       adcglob.samples_count=TMPR_SAMPLES-1; // count is 0 based (1 means 2 samples)
       ADC_readTemp = 0;
-    }else if(ADC_readLED){
+    }else if(ADC_readLight){
       adcglob.CH_current = V_LIGHT;
       ADC0MX = ADC0MX_ADC0MX__ADC0P11; // LED for light measuring
       adcglob.samples_count=LED_ADC_SAMPLES-1; // count is 0 based (1 means 2 samples)

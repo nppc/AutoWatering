@@ -23,7 +23,7 @@ volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
 volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
-volatile bit daylight; // daylight or night mode
+volatile bit startup, daylight; // daylight or night mode
 volatile pwmglob_t pwmglob;
 
 volatile bit second_tick;
@@ -53,6 +53,7 @@ void updateDataOnScreen(void){
       show_time_m(glob.p_wait_cntr_m);
 #ifdef DEBUG
       ssd1306_printNumberDebug(64,2,glob.Vlight);
+	  ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s);
 #endif
       break;
     case MACHINE_RUN:
@@ -69,6 +70,8 @@ int main(void) {
 
   enter_DefaultMode_from_RESET();
 
+  startup = 1; // It is special case as we don't know where we are in timeline
+  
   setval_PWMout(0,LIGHTPANELPWM_MIN);
   setval_PWMout(1,LIGHTPANELPWM_MIN);
   setval_PWMout(2,LIGHTPANELPWM_MIN);
@@ -112,8 +115,6 @@ int main(void) {
   scroll_init(11, 2, waterrunning_bitmap); // initialize once, as we scroll only one image
 #endif
 
-  setval_PWMout(0,LIGHTPANELPWM_MAX); //DEBUG
-
 
 	while(1){
 	  uint8_t but;
@@ -132,6 +133,8 @@ int main(void) {
 #endif
 
 	  glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
+	  setDaylight(); // set variable daylight
+	  setLightsOnOff(); // turn on or off LED lights
 
     if(run_timers() && glob.screenSaver_s>0){ // process timers
       updateDataOnScreen();

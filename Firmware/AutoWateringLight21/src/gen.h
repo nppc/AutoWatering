@@ -20,5 +20,7 @@ void updateDataOnScreen(void);
 void configAdjustValue(CONFIG_STATE state);
 DAYPHASE getDayPhase(void);
 uint16_t getWaitValue(void);
+void setLightsOnOff(void);
+void setDaylight(void)
 
 #endif /* GEN_H_ */
