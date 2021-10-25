@@ -47,14 +47,14 @@ void SiLabs_Startup(void) {
 
 void updateDataOnScreen(void){
   ssd1306_printBitmap(109, 0, 19, 2, dayphase_bitmap[glob.dayphase]);
-  //show_time_m(1,glob.daylight_cntr_s/60);
-  ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s / 10);
+  show_time_m(2,glob.daylight_cntr_s/60);
+  //ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s / 10);
   switch (glob.machinestate){
     case MACHINE_WAIT:
       ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
       show_time_m(0,glob.p_wait_cntr_m);
 #ifdef DEBUG
-      ssd1306_printNumberDebug(64,2,glob.Vlight);
+      //ssd1306_printNumberDebug(64,2,glob.Vlight);
 #endif
       break;
     case MACHINE_RUN:
