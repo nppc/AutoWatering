@@ -82,6 +82,7 @@ int main(void) {
   glob.p_wait_sub_s = 60;
   glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
   glob.dayphase = DAYPHASE_NIGHT; // Set night at the start to prevent turning light on after boot.
+  glob.dayphase_cntr_s = 250; // update variables after stertup
   glob.daylight_cntr_s = 0; // We start in night mode, but ready to go to daylight mode anytime. So, counter is 0.
   daylight = 0; // We start in night mode
 

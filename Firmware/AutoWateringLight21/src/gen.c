@@ -86,9 +86,15 @@ void show_time_s(uint8_t row, uint16_t num){
 void show_time_m(uint8_t row, uint16_t num){
 	int16_t tmp;
 	tmp = num;
-	ssd1306_printTimeH(22,row,tmp / 60);
-	tmp = tmp % 60;
-	ssd1306_printTimeM(59,row,tmp);
+//	if(tmp >= 6000){
+//	  // show ----
+//	  ssd1306_printTimeH(22,row,100);
+//    ssd1306_printTimeM(59,row,100);
+//	}else{
+    ssd1306_printTimeH(22,row,tmp / 60);
+    tmp = tmp % 60;
+    ssd1306_printTimeM(59,row,tmp);
+//	}
 }
 
 void scroll_image(void){
