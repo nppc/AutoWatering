@@ -155,13 +155,13 @@ uint16_t getWaitValue(void){
 
 // if daylight counter is 0 then we can turn Lights on or off according to dayphase
 // if sunny, then Lights should be off
-// also turn lights off is daylight counter is expired, but wthere is still not dark outside.
+// also turn lights off if daylight counter is expired, but there is still not dark outside.
 void setLightsOnOff(void){
   bit l_on = 0;
   if(glob.dayphase_cntr_s < 60) return; // do nothing if dayphase is not stabilized
 
   if(daylight && glob.daylight_cntr_s>0){
-      if(glob.dayphase==DAYPHASE_CLOUD) l_on = 1;
+      if(glob.dayphase!=DAYPHASE_SUN) l_on = 1;
   }
   
   if(l_on && pwmglob.set_out[0] == LIGHTPANELPWM_MIN) setval_PWMout(0,LIGHTPANELPWM_MAX); // turn lights on
