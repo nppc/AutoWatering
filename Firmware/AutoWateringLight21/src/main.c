@@ -1,8 +1,8 @@
 //#pragma src
 // Button logic
-// short press - fix/release values
-// long press (5sec) - calibration. It will cycle from 0EC til 5EC. Release button when desired calibration is found. 
-//  Then insert the probe into calibration liquid and wait until it will say, "OK".
+// short press - on/off pump
+// 2sec press - on/off light
+// long press (5sec) - Config/debug info.
 
 //-----------------------------------------------------------------------------
 // Includes
@@ -278,9 +278,9 @@ int main(void) {
         break;
       case MACHINE_CONFIG:
         menu_config_level_0();
+        menu_config_level_1();
         break;
 		}
-		menu_config_level_1();
 	}
 
 }
