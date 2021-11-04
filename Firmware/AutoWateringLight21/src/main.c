@@ -18,6 +18,7 @@
 #include "screensaver.h"
 #include "pwm.h"
 #include "adc.h"
+#include "config.h"
 
 volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
@@ -107,6 +108,10 @@ int main(void) {
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
+
+  ssd1306_printSmallLine("HELLO ");
+  ssd1306_printSmallNumber(63980);
+  //while(1);
 
   // initialize screen content
   updateDataOnScreen();
@@ -272,94 +277,10 @@ int main(void) {
         }
         break;
       case MACHINE_CONFIG:
-        if(glob.configstate == CONFIG_WAIT){
-          // blink WAIT CONFIG
-          if(configflashcntr==0){
-            ssd1306_clear_display();
-            configflashcntr = 8; // 800ms
-          }else if(configflashcntr<5){
-            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(0, eeprom_data[0].p_wait_cloud);
-            delay_ms(10);
-          }
-        }else if(glob.configstate == CONFIG_RUN){
-          // blink RUN CONFIG
-          if(configflashcntr==0){
-            ssd1306_clear_display();
-            configflashcntr = 8; // 800ms
-          }else if(configflashcntr<5){
-            ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-            show_time_s(0, eeprom_data[0].p_run);
-            delay_ms(10);
-          }
-        }
+        menu_config_level_0();
         break;
 		}
-
-		switch (glob.configstate){
-		  case CONFIG_WAIT_H:
-        // blink WAIT CONFIG HOURS
-		    if(configcounter_s==0){
-		        // switch to minutes edit
-		        glob.configstate = CONFIG_WAIT_M;
-		        configflashcntr = 0;
-		        configcounter_s = 10*3; // about 3 seconds
-		    }else if(configflashcntr==0){
-          ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(0, eeprom_data[0].p_wait_cloud);
-          ssd1306_printBitmapClear(22, 0, 36, 2);
-          configflashcntr = 8; // 800ms
-        }else if(configflashcntr<5){
-          ssd1306_printTimeH(22,0,eeprom_data[0].p_wait_cloud / 60);
-          delay_ms(10);
-        }
-        break;
-      case CONFIG_RUN_M:
-        if(configcounter_s==0){
-            // switch to minutes edit
-            glob.configstate = CONFIG_RUN_S;
-            configflashcntr = 0;
-            configcounter_s = 10*3; // about 3 seconds
-        }else if(configflashcntr==0){
-          ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-          show_time_s(0, eeprom_data[0].p_run);
-          ssd1306_printBitmapClear(22, 0, 41, 2);
-          configflashcntr = 8; // 800ms
-        }else if(configflashcntr<5){
-          ssd1306_printTimeM(22,0,eeprom_data[0].p_run / 60);
-          delay_ms(10);
-        }
-        break;
-      case CONFIG_WAIT_M:
-        if(configcounter_s==0){
-            glob.machinestate = MACHINE_WAIT;
-            storeSettingsEE();
-            RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
-        }else if(configflashcntr==0){
-          ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-          show_time_m(0, eeprom_data[0].p_wait_cloud);
-          ssd1306_printBitmapClear(59, 0, 36, 2);
-          configflashcntr = 8; // 800ms
-        }else if(configflashcntr<5){
-          ssd1306_printTimeM(59,0,eeprom_data[0].p_wait_cloud % 60);
-          delay_ms(10);
-        }
-        break;
-      case CONFIG_RUN_S:
-        if(configcounter_s==0){
-            storeSettingsEE();
-            RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
-        }else if(configflashcntr==0){
-          ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
-          show_time_s(0, eeprom_data[0].p_run);
-          ssd1306_printBitmapClear(64, 0, 31, 2);
-          configflashcntr = 8; // 800ms
-        }else if(configflashcntr<5){
-          ssd1306_printTimeS(64,0,eeprom_data[0].p_run % 60);
-          delay_ms(10);
-        }
-        break;
-		}
+		menu_config_level_1();
 	}
 
 }

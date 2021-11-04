@@ -22,6 +22,9 @@ void ssd1306_send_command_start(void);
 void ssd1306_send_command(uint8_t cmd);
 void ssd1306_write_display_start(void);
 void ssd1306_clear_display(void);
+void ssd1306_printSmallChar(char chr);
+void ssd1306_printSmallLine(char code * line);
+void ssd1306_printSmallNumber(uint16_t num);
 void setCol(uint8_t col);
 void setRow(uint8_t row);
 void ssd1306_printNumber(uint8_t x, uint8_t y, int16_t num);
@@ -90,7 +93,10 @@ void ssd1306_printBitmapClear(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 // Font constants
 #define NUMBER_HEIGHT 2 // pages
-#define NUMBER_WIDTH 12
-#define DOT_WIDTH 4
+#define NUMBER_WIDTH 9
+#define DOT_WIDTH 2
+
+//#define SMALLFONT_HEIGHT 1 // pages
+#define SMALLFONT_WIDTH 5
 
 #endif /* INC_SSD1306_H_ */
