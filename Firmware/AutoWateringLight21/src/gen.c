@@ -172,6 +172,12 @@ void setLightsOnOff(void){
   
   if(l_on && pwmglob.set_out[0] == LIGHTPANELPWM_MIN) setval_PWMout(0,LIGHTPANELPWM_MAX); // turn lights on
   else if(l_on==0 && pwmglob.set_out[0] == LIGHTPANELPWM_MAX) setval_PWMout(0,LIGHTPANELPWM_MIN); // turn lights off
+
+  if(l_on && pwmglob.set_out[1] == LIGHTPANELPWM_MIN) setval_PWMout(1,LIGHTPANELPWM_MAX); // turn lights on
+  else if(l_on==0 && pwmglob.set_out[1] == LIGHTPANELPWM_MAX) setval_PWMout(1,LIGHTPANELPWM_MIN); // turn lights off
+
+  if(l_on && pwmglob.set_out[2] == LIGHTPANELPWM_MIN) setval_PWMout(2,LIGHTPANELPWM_MAX); // turn lights on
+  else if(l_on==0 && pwmglob.set_out[2] == LIGHTPANELPWM_MAX) setval_PWMout(2,LIGHTPANELPWM_MIN); // turn lights off
 }
 
 // switch to daylight mode if counter is 0 or there is cloudy or sunny weather longer than 1 minute
