@@ -109,9 +109,9 @@ int main(void) {
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-  ssd1306_printSmallLine("HELLO ");
-  ssd1306_printSmallNumber(63980);
-  //while(1);
+//  ssd1306_printSmallLine("HELLO "); // debug
+//  ssd1306_printSmallNumber(63980); // debug
+//  delay_ms(1000); // debug
 
   // initialize screen content
   updateDataOnScreen();

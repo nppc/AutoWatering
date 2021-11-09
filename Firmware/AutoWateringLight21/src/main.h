@@ -43,7 +43,7 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 // Values for sun/cloud/night LED sensor readings
 #define LEDSENSOR_SUN 770 // ADC value
 #define LEDSENSOR_CLOUD 720 // ADC value
-#define LEDSENSOR_NIGHT 120 // ADC value
+#define LEDSENSOR_NIGHT 130 // ADC value
 
 #define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value
 #define LIGHTPANELPWM_MIN 2 // 10 bit PWM value
