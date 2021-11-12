@@ -79,22 +79,16 @@ void show_time_s(uint8_t row, uint16_t num){
 	tmp = num;
 	ssd1306_printTimeM(22,row,tmp / 60);
 	tmp = tmp % 60;
-	ssd1306_printTimeS(64,row,tmp);
+	ssd1306_printTimeS(62,row,tmp);
 }
 
 // format: XXh XXm
 void show_time_m(uint8_t row, uint16_t num){
 	int16_t tmp;
 	tmp = num;
-//	if(tmp >= 6000){
-//	  // show ----
-//	  ssd1306_printTimeH(22,row,100);
-//    ssd1306_printTimeM(59,row,100);
-//	}else{
-    ssd1306_printTimeH(22,row,tmp / 60);
-    tmp = tmp % 60;
-    ssd1306_printTimeM(59,row,tmp);
-//	}
+  ssd1306_printTimeH(22,row,tmp / 60);
+  tmp = tmp % 60;
+  ssd1306_printTimeM(57,row,tmp);
 }
 
 void scroll_image(void){
@@ -104,37 +98,6 @@ void scroll_image(void){
 		scroll_down(11, 2);
 		ssd1306_printBitmapX(0, 2, 11, 2, scrlbuff);
 	}
-}
-
-
-void configAdjustValue(CONFIG_STATE state){
-  uint8_t t;
-  switch (state){
-	case CONFIG_WAIT_H:
-	  t = eeprom_data[0].p_wait_cloud % 60; // preserve minutes
-	  eeprom_data[0].p_wait_cloud+=60;
-	  if(eeprom_data[0].p_wait_cloud>(99*60+59)) eeprom_data[0].p_wait_cloud = t;
-	  //configcounter_s = 10*3; // about 3 seconds
-	  break;
-	case CONFIG_WAIT_M:
-	  t = eeprom_data[0].p_wait_cloud / 60; // preserve hours
-	  eeprom_data[0].p_wait_cloud++;
-	  if((eeprom_data[0].p_wait_cloud / 60)>t) eeprom_data[0].p_wait_cloud = t*60;
-	  //configcounter_s = 10*3; // about 3 seconds
-	  break;
-	case CONFIG_RUN_M:
-	  t = eeprom_data[0].p_run % 60; // preserve seconds
-	  eeprom_data[0].p_run+=60;
-	  if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
-	  //configcounter_s = 10*3; // about 3 seconds
-	  break;
-	case CONFIG_RUN_S:
-	  t = eeprom_data[0].p_run / 60; // preserve minutes
-	  eeprom_data[0].p_run++;
-	  if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
-	  //configcounter_s = 10*3; // about 3 seconds
-	  break;
-  }
 }
 
 // Return night, cloud or sun according to LED light sensor readings

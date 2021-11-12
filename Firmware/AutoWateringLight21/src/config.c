@@ -76,10 +76,10 @@ void menu_config_level_1(void){
       }else if(configflashcntr==0){
         ssd1306_printBitmap(0, 2, 11, 2, hourglass_bitmap);
         show_time_m(2, eeprom_data[0].p_wait_cloud);
-        ssd1306_printBitmapClear(59, 2, 36, 2);
+        ssd1306_printBitmapClear(57, 2, 36, 2);
         configflashcntr = 8; // 800ms
       }else if(configflashcntr<5){
-        ssd1306_printTimeM(59,2,eeprom_data[0].p_wait_cloud % 60);
+        ssd1306_printTimeM(57,2,eeprom_data[0].p_wait_cloud % 60);
         delay_ms(10);
       }
       break;
@@ -93,15 +93,45 @@ void menu_config_level_1(void){
           // update timer if needed
           if(eeprom_data[0].p_run<glob.p_run_cntr_s) glob.p_run_cntr_s = eeprom_data[0].p_run;
       }else if(configflashcntr==0){
-        ssd1306_printBitmap(0, 0, 11, 2, waterrunning_bitmap);
+        ssd1306_printBitmap(0, 2, 11, 2, waterrunning_bitmap);
         show_time_s(2, eeprom_data[0].p_run);
-        ssd1306_printBitmapClear(64, 2, 31, 2);
+        ssd1306_printBitmapClear(62, 2, 31, 2);
         configflashcntr = 8; // 800ms
       }else if(configflashcntr<5){
-        ssd1306_printTimeS(64,2,eeprom_data[0].p_run % 60);
+        ssd1306_printTimeS(62,2,eeprom_data[0].p_run % 60);
         delay_ms(10);
       }
       break;
   }
 
+}
+
+void configAdjustValue(CONFIG_STATE state){
+  uint8_t t;
+  switch (state){
+  case CONFIG_WAIT_H:
+    t = eeprom_data[0].p_wait_cloud % 60; // preserve minutes
+    eeprom_data[0].p_wait_cloud+=60;
+    if(eeprom_data[0].p_wait_cloud>(99*60+59)) eeprom_data[0].p_wait_cloud = t;
+    //configcounter_s = 10*3; // about 3 seconds
+    break;
+  case CONFIG_WAIT_M:
+    t = eeprom_data[0].p_wait_cloud / 60; // preserve hours
+    eeprom_data[0].p_wait_cloud++;
+    if((eeprom_data[0].p_wait_cloud / 60)>t) eeprom_data[0].p_wait_cloud = t*60;
+    //configcounter_s = 10*3; // about 3 seconds
+    break;
+  case CONFIG_RUN_M:
+    t = eeprom_data[0].p_run % 60; // preserve seconds
+    eeprom_data[0].p_run+=60;
+    if(eeprom_data[0].p_run>(99*60+59)) eeprom_data[0].p_run = t;
+    //configcounter_s = 10*3; // about 3 seconds
+    break;
+  case CONFIG_RUN_S:
+    t = eeprom_data[0].p_run / 60; // preserve minutes
+    eeprom_data[0].p_run++;
+    if((eeprom_data[0].p_run / 60)>t) eeprom_data[0].p_run = t*60;
+    //configcounter_s = 10*3; // about 3 seconds
+    break;
+  }
 }
