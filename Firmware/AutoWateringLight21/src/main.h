@@ -20,7 +20,8 @@ SI_SBIT(PIN_PWM1, SFR_P1, 0);
 SI_SBIT(PIN_PWM2, SFR_P1, 1);
 
 typedef enum {MACHINE_WAIT, MACHINE_RUN, MACHINE_CONFIG} MACHINE_STATE;
-typedef enum {CONFIG_WAIT,
+typedef enum {CONFIG_NOCONFIG,
+              CONFIG_WAIT,
               CONFIG_RUN,
               CONFIG_LIGHT,
               CONFIG_WAIT_H,

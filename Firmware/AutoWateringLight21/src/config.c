@@ -67,7 +67,9 @@ void menu_config_level_1(void){
     case CONFIG_WAIT_M:
       if(configcounter_s==0){
           glob.machinestate = MACHINE_WAIT;
+		  glob.configstate = CONFIG_NOCONFIG;
           storeSettingsEE();
+		  updateDataOnScreen();
           //RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
           // update timer if needed
           if(eeprom_data[0].p_wait_cloud<glob.p_wait_cntr_m) glob.p_wait_cntr_m = eeprom_data[0].p_wait_cloud;
@@ -83,7 +85,10 @@ void menu_config_level_1(void){
       break;
     case CONFIG_RUN_S:
       if(configcounter_s==0){
+		  glob.machinestate = MACHINE_WAIT;
+  		  glob.configstate = CONFIG_NOCONFIG;
           storeSettingsEE();
+  		  updateDataOnScreen();
           //RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
           // update timer if needed
           if(eeprom_data[0].p_run<glob.p_run_cntr_s) glob.p_run_cntr_s = eeprom_data[0].p_run;
