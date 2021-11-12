@@ -102,7 +102,7 @@ void scroll_image(void){
 		// time to scroll
 		scrolldelay=70; // ms
 		scroll_down(11, 2);
-		ssd1306_printBitmapX(0, 0, 11, 2, scrlbuff);
+		ssd1306_printBitmapX(0, 2, 11, 2, scrlbuff);
 	}
 }
 

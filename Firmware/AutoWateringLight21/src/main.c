@@ -47,19 +47,22 @@ void SiLabs_Startup(void) {
 }
 
 void updateDataOnScreen(void){
+  // dayphase in the right upper corner
   ssd1306_printBitmap(109, 0, 19, 2, dayphase_bitmap[glob.dayphase]);
-  show_time_m(2,glob.daylight_cntr_s/60);
-  //ssd1306_printNumberDebug(0,2,glob.daylight_cntr_s / 10);
+  // Light time
+  if(daylight) ssd1306_printBitmap(0, 0, 11, 2, lightOn_bitmap); else ssd1306_printBitmap(0, 0, 11, 2, lightOff_bitmap);
+  show_time_m(0,glob.daylight_cntr_s/60);
+  // watering time
   switch (glob.machinestate){
     case MACHINE_WAIT:
-      ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-      show_time_m(0,glob.p_wait_cntr_m);
+      ssd1306_printBitmap(0, 2, 11, 2, water_bitmap);
+      show_time_m(2,glob.p_wait_cntr_m);
 #ifdef DEBUG
       //ssd1306_printNumberDebug(64,2,glob.Vlight);
 #endif
       break;
     case MACHINE_RUN:
-      show_time_s(0,glob.p_run_cntr_s);
+      show_time_s(2,glob.p_run_cntr_s);
       break;
   }
 }
@@ -109,9 +112,9 @@ int main(void) {
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
 
-//  ssd1306_printSmallLine("HELLO "); // debug
-//  ssd1306_printSmallNumber(63980); // debug
-//  delay_ms(1000); // debug
+  ssd1306_printSmallLine("HELLO "); // debug
+  ssd1306_printSmallNumber(63980); // debug
+  delay_ms(1000); // debug
 
   // initialize screen content
   updateDataOnScreen();
@@ -260,7 +263,7 @@ int main(void) {
             glob.p_run_cntr_s = eeprom_data[0].p_run;
             ssd1306_clear_display();
             glob.screenSaver_s = SSAVERDELAY;
-            show_time_s(0, glob.p_run_cntr_s);
+            show_time_s(2, glob.p_run_cntr_s);
         }
         break;
       case MACHINE_RUN:
@@ -272,8 +275,8 @@ int main(void) {
             glob.p_wait_sub_s = 60;
             ssd1306_clear_display();
             glob.screenSaver_s = SSAVERDELAY;
-            ssd1306_printBitmap(0, 0, 11, 2, hourglass_bitmap);
-            show_time_m(0, glob.p_wait_cntr_m);
+            ssd1306_printBitmap(0, 2, 11, 2, hourglass_bitmap);
+            show_time_m(2, glob.p_wait_cntr_m);
         }
         break;
       case MACHINE_CONFIG:
