@@ -65,6 +65,17 @@ void updateDataOnScreen(void){
       show_time_s(2,glob.p_run_cntr_s);
       break;
   }
+
+#ifdef DEBUG
+  setCol(92); // debug
+  setRow(2); // debug
+  ssd1306_printSmallLine("T"); // debug
+  ssd1306_printSmallNumber(glob.TmpBrd); // debug
+  setCol(92); // debug
+  setRow(3); // debug
+  ssd1306_printSmallLine("L"); // debug
+  ssd1306_printSmallNumber(glob.Vlight); // debug
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -111,10 +122,6 @@ int main(void) {
   ssd1306_init();
   ssd1306_clear_display();
   ssd1306_send_command(SSD1306_DISPLAYON);
-
-  ssd1306_printSmallLine("HELLO "); // debug
-  ssd1306_printSmallNumber(63980); // debug
-  delay_ms(1000); // debug
 
   // initialize screen content
   updateDataOnScreen();

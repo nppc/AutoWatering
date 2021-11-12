@@ -96,19 +96,22 @@ void ssd1306_printSmallChar(char chr){
   uint8_t i,tmp1,tmp = chr-32; // char code now is zero based
   if(tmp>63) tmp=31; // print ? for undefined symbols
   for(i=0;i<SMALLFONT_WIDTH;i++){
-    tmp1 = font6x8[tmp * SMALLFONT_WIDTH];
+    tmp1 = font6x8[tmp * SMALLFONT_WIDTH+i];
     I2C_Write(tmp1);
   }
+  I2C_Write(0); // character space
 }
 
 void ssd1306_printSmallLine(char code * line){
   uint8_t i=0;
+  ssd1306_write_display_start();
   while(1){
       char chr = line[i];
-      if(chr==0) return;
+      if(chr==0) break;
       ssd1306_printSmallChar(chr);
 	  i++;
   }
+  I2C_Stop();
 }
 
 void ssd1306_printSmallNumber(uint16_t num){
@@ -117,9 +120,10 @@ void ssd1306_printSmallNumber(uint16_t num){
   bit skip0 = 1; // skip leading 0s
   
   if(num==0){
-      ssd1306_printSmallLine('    0');
+      ssd1306_printSmallLine("    0");
       return;
   }
+  ssd1306_write_display_start();
   for(i=0;i<5;i++){
       tnum = num / divc;
       num = num % divc;
@@ -131,6 +135,7 @@ void ssd1306_printSmallNumber(uint16_t num){
 		  ssd1306_printSmallChar(tnum+0x30);
 	  }
   }
+  I2C_Stop();
 }
 
 /** PRINT MULTI LINE FONT **/
