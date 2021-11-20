@@ -81,12 +81,10 @@
     <property object="PCACH_0" propertyId="pcach.pcacontrol.channelcapturecomparemode" value="Predefined 8~11-bit pulse modulator"/>
     <property object="PCACH_1" propertyId="ABPeripheral.included" value="true"/>
     <property object="PCACH_1" propertyId="pcach.pcachannel.cex0outputpolarity" value="Inverted"/>
-    <property object="PCACH_1" propertyId="pcach.pcachannelcapturecomparemode.enablechannelcomparatorfunction" value="Enabled"/>
     <property object="PCACH_1" propertyId="pcach.pcachannelcapturecomparemode.enablechannelpulsewidthmodulationmoden" value="Enabled"/>
     <property object="PCACH_1" propertyId="pcach.pcacontrol.channelcapturecomparemode" value="Predefined 8~11-bit pulse modulator"/>
     <property object="PCACH_2" propertyId="ABPeripheral.included" value="true"/>
     <property object="PCACH_2" propertyId="pcach.pcachannel.cex0outputpolarity" value="Inverted"/>
-    <property object="PCACH_2" propertyId="pcach.pcachannelcapturecomparemode.enablechannelcomparatorfunction" value="Enabled"/>
     <property object="PCACH_2" propertyId="pcach.pcachannelcapturecomparemode.enablechannelpulsewidthmodulationmoden" value="Enabled"/>
     <property object="PCACH_2" propertyId="pcach.pcacontrol.channelcapturecomparemode" value="Predefined 8~11-bit pulse modulator"/>
     <property object="PCA_0" propertyId="ABPeripheral.included" value="true"/>
