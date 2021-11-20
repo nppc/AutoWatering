@@ -620,7 +620,7 @@ PCACH_1_enter_DefaultMode_from_RESET (void)
    ***********************************************************************/
   PCA0CPM1 = PCA0CPM1_CAPN__DISABLED | PCA0CPM1_ECCF__DISABLED
       | PCA0CPM1_MAT__DISABLED | PCA0CPM1_PWM16__8_BIT | PCA0CPM1_CAPP__DISABLED
-      | PCA0CPM1_ECOM__ENABLED | PCA0CPM1_PWM__ENABLED | PCA0CPM1_TOG__DISABLED;
+      | PCA0CPM1_ECOM__DISABLED | PCA0CPM1_PWM__ENABLED | PCA0CPM1_TOG__DISABLED;
   // [PCA0CPM1 - PCA Channel 1 Capture/Compare Mode]$
 
   // $[PCA0CPL1 - PCA Channel 1 Capture Module Low Byte]
@@ -665,7 +665,7 @@ PCACH_2_enter_DefaultMode_from_RESET (void)
    ***********************************************************************/
   PCA0CPM2 = PCA0CPM2_CAPN__DISABLED | PCA0CPM2_ECCF__DISABLED
       | PCA0CPM2_MAT__DISABLED | PCA0CPM2_PWM16__8_BIT | PCA0CPM2_CAPP__DISABLED
-      | PCA0CPM2_ECOM__ENABLED | PCA0CPM2_PWM__ENABLED | PCA0CPM2_TOG__DISABLED;
+      | PCA0CPM2_ECOM__DISABLED | PCA0CPM2_PWM__ENABLED | PCA0CPM2_TOG__DISABLED;
   // [PCA0CPM2 - PCA Channel 2 Capture/Compare Mode]$
 
   // $[PCA0CPL2 - PCA Channel 2 Capture Module Low Byte]
