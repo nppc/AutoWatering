@@ -106,7 +106,7 @@ DAYPHASE getDayPhase(void){
   
   if(glob.Vlight<=LEDSENSOR_NIGHT) newdayphase = DAYPHASE_NIGHT;
   else if(glob.Vlight<LEDSENSOR_SUN && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
-  else if(glob.Vlight>LEDSENSOR_NIGHT && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
+  else if(glob.Vlight>(daylight ? LEDSENSOR_NIGHT : LEDSENSOR_MORNING) && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
   else if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_CLOUD) newdayphase = DAYPHASE_SUN;
   else if(glob.Vlight<(LEDSENSOR_SUN) && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
   
