@@ -69,8 +69,8 @@ void updateDataOnScreen(void){
 #ifdef DEBUG
   setCol(92); // debug
   setRow(2); // debug
-  ssd1306_printSmallLine("T"); // debug
-  ssd1306_printSmallNumber(glob.TmpBrd); // debug
+  ssd1306_printSmallLine("S"); // debug
+  ssd1306_printSmallNumber(pwmglob.lightpanelspeed); // debug
   setCol(92); // debug
   setRow(3); // debug
   ssd1306_printSmallLine("L"); // debug
@@ -105,6 +105,10 @@ int main(void) {
 
 #ifdef DEBUGUART
 	prnUART("START",1);
+#endif
+
+#ifdef USEKALMAN
+	kalmanInit();
 #endif
 
   delay_ms(50); // need for ssd1306 init

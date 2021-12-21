@@ -6,9 +6,17 @@
 	#include "uart1.h"
 #endif
 
+#ifdef USEKALMAN
+	#include <math.h>
+#endif
+
 volatile int16_t xdata Adc_data[ADC_SAMPLES];
 volatile adcglob_t adcglob;
 volatile bit ADC_readTemp, ADC_readLight, ADC_buffer_ready; // ADC_buffer_ready - indicates when new ADC readings are ready
+
+#ifdef USEKALMAN
+volatile kalman_t klmf;
+#endif
 
 void initADC(void){
   int16_t tmp;
@@ -87,8 +95,12 @@ bit processADC(void){
         for(i=0;i<LED_ADC_SAMPLES;i++){
           sum += (uint16_t)Adc_data[i];
         }
-        adcval = sum / LED_ADC_SAMPLES; // average
-        glob.Vlight = adcval;
+        #ifdef USEKALMAN
+		adcval = kalmanFilter((float)sum / (float)LED_ADC_SAMPLES);
+		#else 
+		adcval = sum / LED_ADC_SAMPLES; // average	
+		#endif
+		glob.Vlight = adcval;
         break;
       case TMP_BRD: // board temperature control
         // Lets sum...
@@ -115,3 +127,18 @@ bit processADC(void){
   }
   return retval;
 }
+
+#ifdef USEKALMAN
+void kalmanInit(void){
+	klmf.err_estimate = KALMAN_e_est;
+}
+
+float kalmanFilter(float val){
+	klmf.gain = klmf.err_estimate / (klmf.err_estimate + KALMAN_e_mea);
+	klmf.current_estimate = klmf.last_estimate + klmf.gain * (val - klmf.last_estimate);
+	klmf.err_estimate =  (1.0 - klmf.gain) * klmf.err_estimate + fabs(klmf.last_estimate - klmf.current_estimate) * KALMAN_q;
+	klmf.last_estimate = klmf.current_estimate;
+
+	return klmf.current_estimate;	
+}
+#endif

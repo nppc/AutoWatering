@@ -16,6 +16,24 @@ extern adcglob_t adcglob;
 
 extern bit ADC_readTemp, ADC_readLight, ADC_buffer_ready;
 
+#ifdef USEKALMAN
+#define KALMAN_e_mea 2
+#define KALMAN_e_est 2
+#define KALMAN_q 0.01
+
+typedef struct
+	{
+	float err_estimate;
+	float current_estimate;
+	float last_estimate;
+	float gain;
+	} kalman_t
+
+extern kalman_t klmf;
+void kalmanInit(void);
+float kalmanFilter(float val);
+#endif
+
 extern int16_t ConvertADC2mV(int32_t tADC);
 extern int16_t ConvertADC2temp (uint32_t tADC);
 

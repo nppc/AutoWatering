@@ -43,7 +43,7 @@ bit run_timers(void){
 		}else{
 		    ADC_readLight = 1;
 		    adcglob.led_read_s = 2; //2 seconds to wait
-        retval=1;
+		    retval=1;
 		}
 
     // read temperature every 9s

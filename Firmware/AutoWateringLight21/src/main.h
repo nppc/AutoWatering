@@ -9,6 +9,7 @@
 //#define DEBUGUART
 #define DEBUG
 #define PREVENTFLASHWRITE
+#define USEKALMAN
 
 SI_SBIT(SDA_PIN, SFR_P0, 1);
 SI_SBIT(SCL_PIN, SFR_P0, 2);
@@ -50,7 +51,7 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 #define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value
 #define LIGHTPANELPWM_MIN 2 // 10 bit PWM value
 #define LIGHTPANELSPEEDFAST 5 // Adjust Light Panel PWM every N ms.
-#define LIGHTPANELSPEEDSLOW 200	// Adjust Light Panel PWM every N ms.
+#define LIGHTPANELSPEEDSLOW 255	// Adjust Light Panel PWM every N ms.
 
 // Structure for accessing 16bit number by 2 8 bit (back and forth)
 // u16 and u8[] sharing the same memory space
