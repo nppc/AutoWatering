@@ -183,3 +183,13 @@ void setDaylight(void){
   }
   
 }
+
+void setLigthPanelSpeed(void){
+  if(daylight){
+      // switch to fast after we slowly turned panel fully on.
+      if(pwmglob.lightpanelspeed == LIGHTPANELSPEEDSLOW && pwmglob.cur_out == LIGHTPANELPWM_MAX) pwmglob.lightpanelspeed = LIGHTPANELSPEEDFAST;
+  }else{
+      // at night we always can be at slow
+      pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
+  }
+}

@@ -88,6 +88,8 @@ int main(void) {
 
   startup = 1; // It is special case as we don't know where we are in timeline
   
+  pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
+
   setval_PWMout(0,LIGHTPANELPWM_MIN);
   setval_PWMout(1,LIGHTPANELPWM_MIN);
   setval_PWMout(2,LIGHTPANELPWM_MIN);
@@ -151,6 +153,7 @@ int main(void) {
 
 	  glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
 	  setDaylight(); // set variable daylight
+	  setLigthPanelSpeed();
 	  setLightsOnOff(); // turn on or off LED lights
 
     if(run_timers() && glob.screenSaver_s>0){ // process timers

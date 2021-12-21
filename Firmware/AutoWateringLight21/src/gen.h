@@ -22,5 +22,6 @@ DAYPHASE getDayPhase(void);
 uint16_t getWaitValue(void);
 void setLightsOnOff(void);
 void setDaylight(void);
+void setLigthPanelSpeed(void);
 
 #endif /* GEN_H_ */
