@@ -74,7 +74,8 @@ void updateDataOnScreen(void){
   setCol(92); // debug
   setRow(3); // debug
   ssd1306_printSmallLine("L"); // debug
-  ssd1306_printSmallNumber(glob.Vlight); // debug
+  //ssd1306_printSmallNumber(glob.Vlight); // debug
+  ssd1306_printSmallNumber(pwmglob.cur_out[0]);
 #endif
 }
 

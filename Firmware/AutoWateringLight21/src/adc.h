@@ -9,7 +9,7 @@ typedef struct
 	{
     uint8_t samples_count;
     ADC_ch CH_current; // Internal counter for ADC channel switch
-    uint8_t led_read_s, temp_read_s; // seconds counter for LED light sensor and temperature readings
+    uint8_t temp_read_s; // seconds counter for temperature readings
 	} adcglob_t;
 
 extern adcglob_t adcglob;
@@ -19,7 +19,7 @@ extern bit ADC_readTemp, ADC_readLight, ADC_buffer_ready;
 #ifdef USEKALMAN
 #define KALMAN_e_mea 2
 #define KALMAN_e_est 2
-#define KALMAN_q 0.01
+#define KALMAN_q 0.05
 
 typedef struct
 	{
@@ -27,7 +27,7 @@ typedef struct
 	float current_estimate;
 	float last_estimate;
 	float gain;
-	} kalman_t
+	} kalman_t;
 
 extern kalman_t klmf;
 void kalmanInit(void);

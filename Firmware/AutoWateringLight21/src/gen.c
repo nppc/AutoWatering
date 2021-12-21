@@ -27,7 +27,9 @@ bit run_timers(void){
 	bit retval=0;
 	if(second_tick){
 		// occurs every second
-		second_tick=0;
+    retval=1;
+
+    second_tick=0;
 		
 		if(glob.dayphase_cntr_s < 240) glob.dayphase_cntr_s++; // counter for dayphase change (max 4 minutes)
 		
@@ -37,14 +39,8 @@ bit run_timers(void){
 		if(glob.daylight_cntr_s>0) glob.daylight_cntr_s--;
 
 
-		// read LED light every 2s
-		if(adcglob.led_read_s>0){
-		    adcglob.led_read_s--;
-		}else{
-		    ADC_readLight = 1;
-		    adcglob.led_read_s = 2; //2 seconds to wait
-		    retval=1;
-		}
+		// read LED light
+		ADC_readLight = 1;
 
     // read temperature every 9s
     if(adcglob.temp_read_s>0){
@@ -61,12 +57,10 @@ bit run_timers(void){
 				}else{
 					glob.p_wait_sub_s = 60;
 					if(glob.p_wait_cntr_m>0) glob.p_wait_cntr_m--;
-					retval=1;
 				}
 				break;
 			case MACHINE_RUN:
 				if(glob.p_run_cntr_s>0) glob.p_run_cntr_s--;
-				retval=1;
 				break;
 		}
 	}
@@ -187,7 +181,7 @@ void setDaylight(void){
 void setLigthPanelSpeed(void){
   if(daylight){
       // switch to fast after we slowly turned panel fully on.
-      if(pwmglob.lightpanelspeed == LIGHTPANELSPEEDSLOW && pwmglob.cur_out == LIGHTPANELPWM_MAX) pwmglob.lightpanelspeed = LIGHTPANELSPEEDFAST;
+      if(pwmglob.lightpanelspeed == LIGHTPANELSPEEDSLOW && pwmglob.cur_out[0] == LIGHTPANELPWM_MAX) pwmglob.lightpanelspeed = LIGHTPANELSPEEDFAST;
   }else{
       // at night we always can be at slow
       pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
