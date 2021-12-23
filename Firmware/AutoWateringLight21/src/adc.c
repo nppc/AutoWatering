@@ -130,7 +130,15 @@ bit processADC(void){
 
 #ifdef USEKALMAN
 void kalmanInit(void){
-	klmf.err_estimate = KALMAN_e_est;
+	uint8_t i;
+  klmf.err_estimate = KALMAN_e_est;
+	// update to real value
+	for(i=0;i<40;i++){
+	    ADC_readLight = 1;
+	    while (processADC());
+	}
+
+
 }
 
 float kalmanFilter(float val){

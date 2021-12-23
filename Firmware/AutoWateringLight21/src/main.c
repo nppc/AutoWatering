@@ -69,13 +69,13 @@ void updateDataOnScreen(void){
 #ifdef DEBUG
   setCol(92); // debug
   setRow(2); // debug
-  ssd1306_printSmallLine("S"); // debug
-  ssd1306_printSmallNumber(pwmglob.lightpanelspeed); // debug
+  ssd1306_printSmallLine("P"); // debug
+  ssd1306_printSmallNumber(glob.dayphase_cntr_s); // debug
   setCol(92); // debug
   setRow(3); // debug
   ssd1306_printSmallLine("L"); // debug
-  //ssd1306_printSmallNumber(glob.Vlight); // debug
-  ssd1306_printSmallNumber(pwmglob.cur_out[0]);
+  ssd1306_printSmallNumber(glob.Vlight); // debug
+  //ssd1306_printSmallNumber(pwmglob.cur_out[0]);
 #endif
 }
 
@@ -88,6 +88,7 @@ int main(void) {
   enter_DefaultMode_from_RESET();
 
   startup = 1; // It is special case as we don't know where we are in timeline
+  daylight = 0; // We start in night mode
   
   pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
 
@@ -100,9 +101,8 @@ int main(void) {
   glob.p_wait_sub_s = 60;
   glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
   glob.dayphase = DAYPHASE_NIGHT; // Set night at the start to prevent turning light on after boot.
-  glob.dayphase_cntr_s = 250; // update variables after stertup
-  glob.daylight_cntr_s = 0; // We start in night mode, but ready to go to daylight mode anytime. So, counter is 0.
-  daylight = 0; // We start in night mode
+  glob.dayphase_cntr_s = 250; // update variables after startup
+  glob.daylight_cntr_s = 0; // We start in night mode, but ready to go to daylight mode right away. So, counter is 0.
 
 #ifdef DEBUGUART
 	prnUART("START",1);

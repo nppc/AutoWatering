@@ -106,7 +106,7 @@ DAYPHASE getDayPhase(void){
   
   // start timer if dayphase was changed
   if(glob.dayphase!=newdayphase) glob.dayphase_cntr_s = 0; // counter will increment
-  
+
   return newdayphase;
 }
 
