@@ -98,7 +98,7 @@ void scroll_image(void){
 DAYPHASE getDayPhase(void){
   DAYPHASE newdayphase = glob.dayphase;
   
-  if(glob.Vlight<=LEDSENSOR_NIGHT) newdayphase = DAYPHASE_NIGHT;
+  if(glob.Vlight<=LEDSENSOR_NIGHT && daylight) newdayphase = DAYPHASE_NIGHT;
   else if(glob.Vlight<LEDSENSOR_SUN && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
   else if(glob.Vlight>(daylight ? LEDSENSOR_NIGHT : LEDSENSOR_MORNING) && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
   else if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_CLOUD) newdayphase = DAYPHASE_SUN;
