@@ -34,7 +34,6 @@ SI_INTERRUPT (ADC0EOC_ISR, ADC0EOC_IRQn)
 // every 1ms timer
 SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
   {
-    U16_U8 tmp;
     // advance delay timer
     if(delay_on) {
         if(tmp_millis!=0)
@@ -60,95 +59,6 @@ SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
       // counter for config data flashing on screen
       if(configflashcntr!=0)configflashcntr--;
     }
-
-    // smooth pwm adjust (every 2ms)
-    if(pwmglob.pwmchangecntr==0){
-	  pwmglob.pwmchangecntr = pwmglob.lightpanelspeed;
-      if(pwmglob.cur_out[0]<pwmglob.set_out[0]){pwmglob.cur_out[0]++;pwmOut0_update = 1;} // adjust
-      else if(pwmglob.cur_out[0]>pwmglob.set_out[0]){pwmglob.cur_out[0]--;pwmOut0_update = 1;} // adjust
-      if(pwmglob.cur_out[1]<pwmglob.set_out[1]){pwmglob.cur_out[1]++;pwmOut1_update = 1;} // adjust
-      else if(pwmglob.cur_out[1]>pwmglob.set_out[1]){pwmglob.cur_out[1]--;pwmOut1_update = 1;} // adjust
-      if(pwmglob.cur_out[2]<pwmglob.set_out[2]){pwmglob.cur_out[2]++;pwmOut2_update = 1;} // adjust
-      else if(pwmglob.cur_out[2]>pwmglob.set_out[2]){pwmglob.cur_out[2]--;pwmOut2_update = 1;} // adjust
-
-      if(pwmOut0_update){
-        // disable output if needed
-        if(pwmglob.cur_out[0]==LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          P0MDOUT &= ~P0MDOUT_B7__BMASK;  // Set opendrain
-          PCA0CPM0 &= ~PCA0CPM0_ECOM__BMASK; // disable led PWM
-          PIN_PWM0 = 0;
-          SFRPAGE=sfr_temp;
-        }
-        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
-        tmp.u16 = pwmglob.cur_out[0];
-        // convert 16bit to 2x8bit
-        PCA0CPL0 = tmp.u8[1];
-        PCA0CPH0 = tmp.u8[0];
-        pwmOut0_update = 0;
-        // enable output if needed
-        if(pwmglob.cur_out[0]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[0]>LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          PCA0CPM0 |= PCA0CPM0_ECOM__ENABLED; // enable led PWM
-          P0MDOUT |= P0MDOUT_B7__PUSH_PULL; // Set pushpull
-          SFRPAGE=sfr_temp;
-        }
-      }
-
-      if(pwmOut1_update){
-        if(pwmglob.cur_out[1]==LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          P1MDOUT &= ~P1MDOUT_B0__BMASK;  // Set opendrain
-          PCA0CPM1 &= ~PCA0CPM1_ECOM__BMASK; // enable led PWM
-          PIN_PWM1 = 0;
-          SFRPAGE=sfr_temp;
-        }
-        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
-        tmp.u16 = pwmglob.cur_out[1];
-        // convert 16bit to 2x8bit
-        PCA0CPL1 = tmp.u8[1];
-        PCA0CPH1 = tmp.u8[0];
-        pwmOut1_update = 0;
-        // enable output if needed
-        if(pwmglob.cur_out[1]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[1]>LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          PCA0CPM1 |= PCA0CPM1_ECOM__ENABLED; // enable led PWM
-          P1MDOUT |= P1MDOUT_B0__PUSH_PULL; // Set pushpull
-          SFRPAGE=sfr_temp;
-        }
-      }
-
-      if(pwmOut2_update){
-        if(pwmglob.cur_out[2]==LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          P1MDOUT &= ~P1MDOUT_B1__BMASK;  // Set opendrain
-          PCA0CPM2 &= ~PCA0CPM2_ECOM__BMASK; // enable led PWM
-          PIN_PWM2 = 0;
-          SFRPAGE=sfr_temp;
-        }
-        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
-        tmp.u16 = pwmglob.cur_out[2];
-        // convert 16bit to 2x8bit
-        PCA0CPL2 = tmp.u8[1];
-        PCA0CPH2 = tmp.u8[0];
-        pwmOut2_update = 0;
-        // enable output if needed
-        if(pwmglob.cur_out[2]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[2]>LIGHTPANELPWM_MIN){
-          uint8_t sfr_temp = SFRPAGE;
-          SFRPAGE=0;
-          PCA0CPM2 |=PCA0CPM2_ECOM__ENABLED; // enable led PWM
-          P1MDOUT |= P1MDOUT_B1__PUSH_PULL; // Set pushpull
-          SFRPAGE=sfr_temp;
-        }
-      }
-    }else{
-		pwmglob.pwmchangecntr--;
-	}
 
 
 #ifdef SCROLLING

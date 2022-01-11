@@ -25,6 +25,79 @@ uint16_t div32round(uint32_t d1, uint32_t d2){
 
 bit run_timers(void){
 	bit retval=0;
+	if(ms_tick){
+	    U16_U8 tmp;
+	    if(pwmglob.pwmchangecntr==0){
+	    pwmglob.pwmchangecntr = pwmglob.lightpanelspeed;
+	      if(pwmglob.cur_out[0]<pwmglob.set_out[0]){pwmglob.cur_out[0]++;pwmOut0_update = 1;} // adjust
+	      else if(pwmglob.cur_out[0]>pwmglob.set_out[0]){pwmglob.cur_out[0]--;pwmOut0_update = 1;} // adjust
+	      if(pwmglob.cur_out[1]<pwmglob.set_out[1]){pwmglob.cur_out[1]++;pwmOut1_update = 1;} // adjust
+	      else if(pwmglob.cur_out[1]>pwmglob.set_out[1]){pwmglob.cur_out[1]--;pwmOut1_update = 1;} // adjust
+	      if(pwmglob.cur_out[2]<pwmglob.set_out[2]){pwmglob.cur_out[2]++;pwmOut2_update = 1;} // adjust
+	      else if(pwmglob.cur_out[2]>pwmglob.set_out[2]){pwmglob.cur_out[2]--;pwmOut2_update = 1;} // adjust
+
+	      if(pwmOut0_update){
+	        // disable output if needed
+	        if(pwmglob.cur_out[0]==LIGHTPANELPWM_MIN){
+	          P0MDOUT &= ~P0MDOUT_B7__BMASK;  // Set opendrain
+	          PCA0CPM0 &= ~PCA0CPM0_ECOM__BMASK; // disable led PWM
+	          PIN_PWM0 = 0;
+	        }
+	        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
+	        tmp.u16 = pwmglob.cur_out[0];
+	        // convert 16bit to 2x8bit
+	        PCA0CPL0 = tmp.u8[1];
+	        PCA0CPH0 = tmp.u8[0];
+	        pwmOut0_update = 0;
+	        // enable output if needed
+	        if(pwmglob.cur_out[0]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[0]>LIGHTPANELPWM_MIN){
+	          PCA0CPM0 |= PCA0CPM0_ECOM__ENABLED; // enable led PWM
+	          P0MDOUT |= P0MDOUT_B7__PUSH_PULL; // Set pushpull
+	        }
+	      }
+
+	      if(pwmOut1_update){
+	        if(pwmglob.cur_out[1]==LIGHTPANELPWM_MIN){
+	          P1MDOUT &= ~P1MDOUT_B0__BMASK;  // Set opendrain
+	          PCA0CPM1 &= ~PCA0CPM1_ECOM__BMASK; // enable led PWM
+	          PIN_PWM1 = 0;
+	        }
+	        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
+	        tmp.u16 = pwmglob.cur_out[1];
+	        // convert 16bit to 2x8bit
+	        PCA0CPL1 = tmp.u8[1];
+	        PCA0CPH1 = tmp.u8[0];
+	        pwmOut1_update = 0;
+	        // enable output if needed
+	        if(pwmglob.cur_out[1]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[1]>LIGHTPANELPWM_MIN){
+	          PCA0CPM1 |= PCA0CPM1_ECOM__ENABLED; // enable led PWM
+	          P1MDOUT |= P1MDOUT_B0__PUSH_PULL; // Set pushpull
+	        }
+	      }
+
+	      if(pwmOut2_update){
+	        if(pwmglob.cur_out[2]==LIGHTPANELPWM_MIN){
+	          P1MDOUT &= ~P1MDOUT_B1__BMASK;  // Set opendrain
+	          PCA0CPM2 &= ~PCA0CPM2_ECOM__BMASK; // enable led PWM
+	          PIN_PWM2 = 0;
+	        }
+	        PCA0PWM |= PCA0PWM_ARSEL__AUTORELOAD;
+	        tmp.u16 = pwmglob.cur_out[2];
+	        // convert 16bit to 2x8bit
+	        PCA0CPL2 = tmp.u8[1];
+	        PCA0CPH2 = tmp.u8[0];
+	        pwmOut2_update = 0;
+	        // enable output if needed
+	        if(pwmglob.cur_out[2]==(LIGHTPANELPWM_MIN+1) && pwmglob.set_out[2]>LIGHTPANELPWM_MIN){
+	          PCA0CPM2 |=PCA0CPM2_ECOM__ENABLED; // enable led PWM
+	          P1MDOUT |= P1MDOUT_B1__PUSH_PULL; // Set pushpull
+	        }
+	      }
+	    }else{
+	    pwmglob.pwmchangecntr--;
+	  }
+	}
+
 	if(second_tick){
 		// occurs every second
     retval=1;

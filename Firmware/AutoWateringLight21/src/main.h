@@ -115,7 +115,7 @@ extern eeprom_t xdata eeprom_data[];
 
 extern glob_t glob;
 
-extern bit second_tick; // set to 1 every second (for time countnig operation)
+extern bit second_tick, ms_tick; // set to 1 every second (for time countnig operation)
 extern uint8_t pcacntr_s; // counter for seconds based on Timer2
 extern uint8_t pcacntr_s10; // counter for 10s of seconds (every 100ms) based on Timer2
 extern uint8_t configcounter_s; // counter for button timing while config

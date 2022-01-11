@@ -27,7 +27,7 @@ volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
 volatile bit startup, daylight; // daylight or night mode
 volatile pwmglob_t pwmglob;
 
-volatile bit second_tick;
+volatile bit second_tick, ms_tick;
 volatile uint8_t pcacntr_s = 10;
 volatile uint8_t pcacntr_s10 = 100;
 volatile uint8_t configcounter_s;
@@ -186,14 +186,6 @@ int main(void) {
     }
 		
     but = getButtonState();
-#ifdef DEBUG
-    // test LIGHT ON/OFF
-//    if(but==BUT_PRESSED){
-//        if(pwmglob.set_out[0]==LIGHTPANELPWM_MIN) pwmglob.set_out[0]=LIGHTPANELPWM_MAX; else pwmglob.set_out[0]=LIGHTPANELPWM_MIN;
-//        delay_ms(200);
-//        buttonstate = BUT_NOTPRESSED;but = BUT_NOTPRESSED;
-//    }
-#endif
     // check button
   if(glob.screenSaver_s<=0 && but==BUT_PRESSED){
     // wake up from screen saver on button short press
