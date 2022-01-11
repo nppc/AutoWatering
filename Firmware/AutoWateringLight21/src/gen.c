@@ -27,6 +27,8 @@ bit run_timers(void){
 	bit retval=0;
 	if(ms_tick){
 	    U16_U8 tmp;
+	    ms_tick = false;
+
 	    if(pwmglob.pwmchangecntr==0){
 	    pwmglob.pwmchangecntr = pwmglob.lightpanelspeed;
 	      if(pwmglob.cur_out[0]<pwmglob.set_out[0]){pwmglob.cur_out[0]++;pwmOut0_update = 1;} // adjust

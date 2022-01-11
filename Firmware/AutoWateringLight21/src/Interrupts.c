@@ -34,6 +34,8 @@ SI_INTERRUPT (ADC0EOC_ISR, ADC0EOC_IRQn)
 // every 1ms timer
 SI_INTERRUPT (TIMER2_ISR, TIMER2_IRQn)
   {
+    ms_tick = true;
+
     // advance delay timer
     if(delay_on) {
         if(tmp_millis!=0)

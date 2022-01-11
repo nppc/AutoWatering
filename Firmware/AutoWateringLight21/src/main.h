@@ -51,7 +51,7 @@ typedef enum {DAYPHASE_NIGHT, DAYPHASE_CLOUD, DAYPHASE_SUN} DAYPHASE;
 #define LIGHTPANELPWM_MAX 930 //957 10 bit PWM value
 #define LIGHTPANELPWM_MIN 2 // 10 bit PWM value
 #define LIGHTPANELSPEEDFAST 5 // Adjust Light Panel PWM every N ms.
-#define LIGHTPANELSPEEDSLOW 255	// Adjust Light Panel PWM every N ms.
+#define LIGHTPANELSPEEDSLOW 2000	// Adjust Light Panel PWM every N ms.
 
 // Structure for accessing 16bit number by 2 8 bit (back and forth)
 // u16 and u8[] sharing the same memory space
@@ -103,8 +103,8 @@ typedef struct
 {
   int16_t set_out[3];
   int16_t cur_out[3];
-  uint8_t pwmchangecntr;
-  uint8_t lightpanelspeed;
+  uint16_t pwmchangecntr;
+  uint16_t lightpanelspeed;
 } pwmglob_t;
 
 extern bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
