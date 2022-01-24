@@ -13,7 +13,7 @@ void menu_config_level_0(void){
       configflashcntr = 8; // 800ms
     }else if(configflashcntr<5){
       ssd1306_printBitmap(0, 2, 11, 2, hourglass_bitmap);
-      show_time_m(2, eeprom_data[0].p_wait_cloud);
+      show_time_m(2, eeprom_data[0].p_wait);
       delay_ms(10);
     }
   }else if(glob.configstate == CONFIG_RUN){
@@ -40,11 +40,11 @@ void menu_config_level_1(void){
           configcounter_s = 10*3; // about 3 seconds
       }else if(configflashcntr==0){
         ssd1306_printBitmap(0, 2, 11, 2, hourglass_bitmap);
-        show_time_m(2, eeprom_data[0].p_wait_cloud);
+        show_time_m(2, eeprom_data[0].p_wait);
         ssd1306_printBitmapClear(22, 2, 36, 2);
         configflashcntr = 8; // 800ms
       }else if(configflashcntr<5){
-        ssd1306_printTimeH(22,2,eeprom_data[0].p_wait_cloud / 60);
+        ssd1306_printTimeH(22,2,eeprom_data[0].p_wait / 60);
         delay_ms(10);
       }
       break;
@@ -72,14 +72,14 @@ void menu_config_level_1(void){
 		  updateDataOnScreen();
           //RSTSRC = RSTSRC_SWRSF__SET | RSTSRC_PORSF__SET; // reboot
           // update timer if needed
-          if(eeprom_data[0].p_wait_cloud<glob.p_wait_cntr_m) glob.p_wait_cntr_m = eeprom_data[0].p_wait_cloud;
+          if(eeprom_data[0].p_wait<glob.p_wait_cntr_m) glob.p_wait_cntr_m = eeprom_data[0].p_wait;
       }else if(configflashcntr==0){
         ssd1306_printBitmap(0, 2, 11, 2, hourglass_bitmap);
-        show_time_m(2, eeprom_data[0].p_wait_cloud);
+        show_time_m(2, eeprom_data[0].p_wait);
         ssd1306_printBitmapClear(57, 2, 36, 2);
         configflashcntr = 8; // 800ms
       }else if(configflashcntr<5){
-        ssd1306_printTimeM(57,2,eeprom_data[0].p_wait_cloud % 60);
+        ssd1306_printTimeM(57,2,eeprom_data[0].p_wait % 60);
         delay_ms(10);
       }
       break;
@@ -110,15 +110,15 @@ void configAdjustValue(CONFIG_STATE state){
   uint8_t t;
   switch (state){
   case CONFIG_WAIT_H:
-    t = eeprom_data[0].p_wait_cloud % 60; // preserve minutes
-    eeprom_data[0].p_wait_cloud+=60;
-    if(eeprom_data[0].p_wait_cloud>(99*60+59)) eeprom_data[0].p_wait_cloud = t;
+    t = eeprom_data[0].p_wait % 60; // preserve minutes
+    eeprom_data[0].p_wait+=60;
+    if(eeprom_data[0].p_wait>(99*60+59)) eeprom_data[0].p_wait = t;
     //configcounter_s = 10*3; // about 3 seconds
     break;
   case CONFIG_WAIT_M:
-    t = eeprom_data[0].p_wait_cloud / 60; // preserve hours
-    eeprom_data[0].p_wait_cloud++;
-    if((eeprom_data[0].p_wait_cloud / 60)>t) eeprom_data[0].p_wait_cloud = t*60;
+    t = eeprom_data[0].p_wait / 60; // preserve hours
+    eeprom_data[0].p_wait++;
+    if((eeprom_data[0].p_wait / 60)>t) eeprom_data[0].p_wait = t*60;
     //configcounter_s = 10*3; // about 3 seconds
     break;
   case CONFIG_RUN_M:

@@ -18,10 +18,7 @@ void show_time_m(uint8_t row, uint16_t num);
 void scroll_image(void);
 void updateDataOnScreen(void);
 void configAdjustValue(CONFIG_STATE state);
-DAYPHASE getDayPhase(void);
 uint16_t getWaitValue(void);
 void setLightsOnOff(void);
-void setDaylight(void);
-void setLigthPanelSpeed(void);
 
 #endif /* GEN_H_ */

@@ -111,7 +111,7 @@ bit run_timers(void){
 		glob.screenSaver_s--;
 		
 		// advance daylight counter
-		if(glob.daylight_cntr_s>0) glob.daylight_cntr_s--;
+		if(glob.ledOnOff_cntr_s>0) glob.ledOnOff_cntr_s--;
 
 
 		// read LED light
@@ -169,16 +169,14 @@ void scroll_image(void){
 	}
 }
 
-// Return night, cloud or sun according to LED light sensor readings
+// Return undefined, cloud or sun according to LED light sensor readings
 DAYPHASE getDayPhase(void){
   DAYPHASE newdayphase = glob.dayphase;
   
-  if(glob.Vlight<=LEDSENSOR_NIGHT && daylight) newdayphase = DAYPHASE_NIGHT;
-  else if(glob.Vlight<LEDSENSOR_SUN && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
-  else if(glob.Vlight>(daylight ? LEDSENSOR_NIGHT : LEDSENSOR_MORNING) && glob.dayphase==DAYPHASE_NIGHT) newdayphase = DAYPHASE_CLOUD;
-  else if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_CLOUD) newdayphase = DAYPHASE_SUN;
-  else if(glob.Vlight<(LEDSENSOR_SUN) && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_CLOUD;
+  if(glob.Vlight<LEDSENSOR_SUN && glob.dayphase==DAYPHASE_SUN) newdayphase = DAYPHASE_NOSUN;
+  else if(glob.Vlight>=LEDSENSOR_SUN && glob.dayphase==DAYPHASE_NOSUN) newdayphase = DAYPHASE_SUN;
   
+  // stabilize the sun/cloud
   // start timer if dayphase was changed
   if(glob.dayphase!=newdayphase) glob.dayphase_cntr_s = 0; // counter will increment
 
@@ -186,79 +184,36 @@ DAYPHASE getDayPhase(void){
 }
 
 uint16_t getWaitValue(void){
-  if(glob.dayphase==DAYPHASE_NIGHT) return eeprom_data[0].p_wait_night; 
-  if(glob.dayphase==DAYPHASE_SUN) return eeprom_data[0].p_wait_sun; 
-  return eeprom_data[0].p_wait_cloud;
+  return eeprom_data[0].p_wait;
 }
 
 // if daylight counter is 0 then we can turn Lights on or off according to dayphase
 // if sunny, then Lights should be off
 // also turn lights off if daylight counter is expired, but there is still not dark outside.
 void setLightsOnOff(void){
-  bit l_on = 0;
-  if(glob.dayphase_cntr_s < 60) return; // do nothing if dayphase is not stabilized
-
-  if(daylight && glob.daylight_cntr_s>0){
-      if(glob.dayphase!=DAYPHASE_SUN) l_on = 1;
-  }
+  bit l_cur = (pwmglob.set_out[0] == LIGHTPANELPWM_MIN ? false : true);
+//  if(glob.dayphase == DAYPHASE_UNDEFINED) return; // do nothing if dayphase is not stabilized
   
-  if(l_on && pwmglob.set_out[0] == LIGHTPANELPWM_MIN) setval_PWMout(0,LIGHTPANELPWM_MAX); // turn lights on
-  else if(l_on==0 && pwmglob.set_out[0] == LIGHTPANELPWM_MAX) setval_PWMout(0,LIGHTPANELPWM_MIN); // turn lights off
+  if(glob.ledOnOff_cntr_s==0){  // timer expired - turn leds on or off
+      // When timer expiredm turn on/off slowly
+      needLight = !needLight; // switch mode
+      if(needLight){
+          turnLedsOn(LIGHTPANELSPEEDSLOW);
+          glob.ledOnOff_cntr_s = eeprom_data[0].ontime;
+      }else{
+          turnLedsOff(LIGHTPANELSPEEDSLOW);
+          glob.ledOnOff_cntr_s = eeprom_data[0].offtime;
+      }
+  }else if(needLight){
+      // if during the day dayphase changes - turn on/off fast
+      DAYPHASE curphase = glob.dayphase;
+      glob.dayphase = getDayPhase();
+      if(curphase!=glob.dayphase && glob.dayphase_cntr_s>60){
+          // turn on or off fast
+          if(glob.dayphase == DAYPHASE_NOSUN) turnLedsOn(LIGHTPANELSPEEDFAST); else turnLedsOff(LIGHTPANELSPEEDFAST);
+      }
 
-  if(l_on && pwmglob.set_out[1] == LIGHTPANELPWM_MIN) setval_PWMout(1,LIGHTPANELPWM_MAX); // turn lights on
-  else if(l_on==0 && pwmglob.set_out[1] == LIGHTPANELPWM_MAX) setval_PWMout(1,LIGHTPANELPWM_MIN); // turn lights off
-
-  if(l_on && pwmglob.set_out[2] == LIGHTPANELPWM_MIN) setval_PWMout(2,LIGHTPANELPWM_MAX); // turn lights on
-  else if(l_on==0 && pwmglob.set_out[2] == LIGHTPANELPWM_MAX) setval_PWMout(2,LIGHTPANELPWM_MIN); // turn lights off
-}
-
-// switch to daylight mode if counter is 0 or there is cloudy or sunny weather longer than 1 minute
-// After startup we do not know where we in timeline. So, this is special case.
-// Only process the logic if dayphase stabilized (longer than 1 minute)
-//   Startup (variable startup=1):
-//   If it is night, start the timer - we in the night.
-//   If it is cloudy or sunny, start the timer, but switch to the night as soon as there is no light. Then start night timer. 
-// Normal case:
-//   if we in daylight and it is night outside and daylight timer is expired, then go to night mode 
-//   if we in night mode and night mode timer is expired and there is no night outside - switch to daylight mode
-//   TODO: do we need to turn lights off if daylight timer is expired, but no night outside (anyway this will be done outside this routine)?
-void setDaylight(void){
-  if(glob.dayphase_cntr_s < 60) return; // do nothing if dayphase is not stabilized
-  if(startup){
-	// startup case
-	if(glob.dayphase==DAYPHASE_NIGHT){
-		// we in night - go to night mode and end startup phase
-		daylight = 0;
-		glob.daylight_cntr_s = eeprom_data[0].night; 
-		startup = 0;
-	}else if(daylight==0 && glob.dayphase!=DAYPHASE_NIGHT){
-		daylight = 1;
-		glob.daylight_cntr_s = eeprom_data[0].daylight;
-		// we still continue in startup
-	}
-	// we are in daylight, but not sure how long. So, switch to night mode as soon as there is no light outside (first check)
-  }else{
-	// normal case
-	if(daylight && glob.dayphase==DAYPHASE_NIGHT && glob.daylight_cntr_s==0){
-		// go to night
-		daylight = 0;
-		glob.daylight_cntr_s = eeprom_data[0].night;
-	}else if(daylight==0 && glob.dayphase!=DAYPHASE_NIGHT && glob.daylight_cntr_s==0){
-		// go to daylight
-		daylight = 1;
-		glob.daylight_cntr_s = eeprom_data[0].daylight;
-	}
-	
   }
-  
+
 }
 
-void setLigthPanelSpeed(void){
-  if(daylight){
-      // switch to fast after we slowly turned panel fully on.
-      if(pwmglob.lightpanelspeed == LIGHTPANELSPEEDSLOW && pwmglob.cur_out[0] == LIGHTPANELPWM_MAX) pwmglob.lightpanelspeed = LIGHTPANELSPEEDFAST;
-  }else{
-      // at night we always can be at slow
-      pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
-  }
-}

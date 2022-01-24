@@ -24,7 +24,7 @@ volatile glob_t glob;
 volatile eeprom_t xdata eeprom_data[1];
 
 volatile bit pwmOut0_update,pwmOut1_update,pwmOut2_update; //,pwmchangecntr;
-volatile bit startup, daylight; // daylight or night mode
+volatile bit needLight = false; // last stae id off. If true, then we need leds to be on. If false, then leds should be off
 volatile pwmglob_t pwmglob;
 
 volatile bit second_tick, ms_tick;
@@ -50,8 +50,8 @@ void updateDataOnScreen(void){
   // dayphase in the right upper corner
   ssd1306_printBitmap(109, 0, 19, 2, dayphase_bitmap[glob.dayphase]);
   // Light time
-  if(daylight) ssd1306_printBitmap(0, 0, 11, 2, lightOn_bitmap); else ssd1306_printBitmap(0, 0, 11, 2, lightOff_bitmap);
-  show_time_m(0,glob.daylight_cntr_s/60);
+  if(needLight) ssd1306_printBitmap(0, 0, 11, 2, lightOn_bitmap); else ssd1306_printBitmap(0, 0, 11, 2, lightOff_bitmap);
+  show_time_m(0,glob.ledOnOff_cntr_s/60);
   // watering time
   switch (glob.machinestate){
     case MACHINE_WAIT:
@@ -70,11 +70,11 @@ void updateDataOnScreen(void){
   setCol(92); // debug
   setRow(2); // debug
   ssd1306_printSmallLine("P"); // debug
-  ssd1306_printSmallNumber(glob.dayphase_cntr_s); // debug
+  ssd1306_printSmallNumber(pwmglob.cur_out[0]); // debug
   setCol(92); // debug
   setRow(3); // debug
   ssd1306_printSmallLine("L"); // debug
-  ssd1306_printSmallNumber(glob.Vlight); // debug
+  ssd1306_printSmallNumber(pwmglob.lightpanelspeed); // debug
   //ssd1306_printSmallNumber(pwmglob.cur_out[0]);
 #endif
 }
@@ -86,9 +86,6 @@ int main(void) {
   // Call hardware initialization routine
 
   enter_DefaultMode_from_RESET();
-
-  startup = 1; // It is special case as we don't know where we are in timeline
-  daylight = 0; // We start in night mode
   
   pwmglob.lightpanelspeed = LIGHTPANELSPEEDSLOW;
 
@@ -100,9 +97,9 @@ int main(void) {
   glob.machinestate = MACHINE_WAIT;
   glob.p_wait_sub_s = 60;
   glob.screenSaver_s = SSAVERDELAY; //SSAVERDELAY seconds of inactivity activates screen saver
-  glob.dayphase = DAYPHASE_NIGHT; // Set night at the start to prevent turning light on after boot.
+  glob.dayphase = DAYPHASE_NOSUN; // Set initial dayphase.
   glob.dayphase_cntr_s = 250; // update variables after startup
-  glob.daylight_cntr_s = 0; // We start in night mode, but ready to go to daylight mode right away. So, counter is 0.
+  glob.ledOnOff_cntr_s = 0; // We start with expired counter to be able to turn lghts on right after start.
 
 #ifdef DEBUGUART
 	prnUART("START",1);
@@ -120,7 +117,7 @@ int main(void) {
   loadSettingsEE();
 
 
-  glob.p_wait_cntr_m = eeprom_data[0].p_wait_cloud;
+  glob.p_wait_cntr_m = eeprom_data[0].p_wait;
   glob.p_run_cntr_s = eeprom_data[0].p_run;
 
   //glob.p_wait_cntr_m = 20; // debug
@@ -156,9 +153,9 @@ int main(void) {
 */
 #endif
 
-	  glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
-	  setDaylight(); // set variable daylight
-	  setLigthPanelSpeed();
+	  //glob.dayphase = getDayPhase(); // Get day phase according to LED sensor
+	  //setDaylight(); // set variable daylight
+	  //setLigthPanelSpeed();
 	  setLightsOnOff(); // turn on or off LED lights
 
     if(run_timers() && glob.screenSaver_s>0){ // process timers
