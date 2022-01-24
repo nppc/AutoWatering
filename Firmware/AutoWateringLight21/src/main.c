@@ -243,6 +243,8 @@ int main(void) {
         configcounter_s = 10*3; // about 3 seconds
       }
     }else if(but==BUT_SHORTPRESS){
+        // turn on/off leds(day/night)
+        glob.ledOnOff_cntr_s=0;
       // start/stop pump if not in config
 	  switch (glob.machinestate){
         case MACHINE_WAIT:
